@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="NGmmYAQIxindMwvFebkZ00">
+<head data-page-node-id="tVMBsNRDEmQFoxAlFt024G">
+    <meta charset="UTF-8" data-page-node-id="E1pHChgwRsuhFnIZjkk6ST">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="r7rQsP2M0HkTpQSjrmQFjS">
+    <title>方块世界 2D</title>
+    <link rel="stylesheet" href="style.css" data-page-node-id="DuTQci2sISE71Tkovf2DnV">
+</head>
+<body data-page-node-id="1Gfob3jc9hczokaA7T63Y8">
+    <div id="game-container" data-page-node-id="SjGgVfiIOma5l3dqKJdBWO">
+        <canvas id="gameCanvas" data-page-node-id="OcVNR12o1FH3oE89GrkQbi"></canvas>
+        
+        <!-- 加载画面 -->
+        <div id="loading-screen" data-page-node-id="l0FtIaqgSdEssznyEXdVH8">
+            <div class="loading-content" data-page-node-id="CoQrQE5WxcNV4bDeHhoBut">
+                <h1 data-page-node-id="D1b189aLphXEJTsBbwSVvq">⛏️ 方块世界 2D</h1>
+                <div class="loading-bar" data-page-node-id="LYqnSEZjIoaMN3eCmWBIt2"><div id="loading-progress" data-page-node-id="ZglIU141z4jS6OgAaN1VoB"></div></div>
+                <p id="loading-text" data-page-node-id="RkiFDydE6VwxlpcvgbBsPA">正在生成世界...</p>
+            </div>
+        </div>
+        
+        <!-- HUD 界面 -->
+        <div id="hud" style="display:none;" data-page-node-id="85217MWh0SdzNbArnXJbmG">
+            <!-- 物品栏 -->
+            <div id="hotbar" data-page-node-id="0veh1soOpzK4FpZ7SwmU4M">
+                <div class="slot active" data-slot="0" data-page-node-id="YuBTdhkr3dEWLnZbB3K2ba"><div class="block-icon grass" data-page-node-id="KDuAVH7u00mE7tKX9RoLXE"></div><span class="key" data-page-node-id="U1uIFOyzYWoIEvsIc5Erab">1</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="1" data-page-node-id="35EPH50vBEgL9Gi1b6Bb56"><div class="block-icon dirt" data-page-node-id="7sx0IF7WsPZ7l8uTMgXzlb"></div><span class="key" data-page-node-id="1uofuomcwHwwEwPrVO8VzY">2</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="2" data-page-node-id="4jckSq4JnsLQq96vn51bin"><div class="block-icon stone" data-page-node-id="aRyHGQvM8ume9AjoBd1gPh"></div><span class="key" data-page-node-id="6Y3IenxJP1afSOzFB5ay9e">3</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="3" data-page-node-id="9DwjkjfVq5QTesNg1VCf7h"><div class="block-icon wood" data-page-node-id="rdNRNrvQZkEazxPu71waWY"></div><span class="key" data-page-node-id="tNk0LVhClQQh4PSmxY4UFj">4</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="4" data-page-node-id="xVD0MCW8QeB6zXAHjNt7LK"><div class="block-icon plank" data-page-node-id="yu7G8o6ASlhh5K94LMNgsv"></div><span class="key" data-page-node-id="2scLhubg9ytPluZrj5DkkI">5</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="5" data-page-node-id="RrKTz8UeDaX60hr7gTIx2F"><div class="block-icon sand" data-page-node-id="ljVvw43P0N0eBZgHPu7AJH"></div><span class="key" data-page-node-id="EXtPm6UJD1e1sGXWelMFFg">6</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="6" data-page-node-id="cQ3xPvvyfurUD5WnrTZEMm"><div class="block-icon glass" data-page-node-id="mDEjWEHS5nqhJYJ2uOFfdC"></div><span class="key" data-page-node-id="PjJcKPanT7JrcNGpygAECv">7</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="7" data-page-node-id="K5G5FF8cr3YIWAF3bchL69"><div class="block-icon brick" data-page-node-id="Zjrt9fUXeSan1EZPbYDXG0"></div><span class="key" data-page-node-id="2MjD9iFEhGG9q1n6oh1WBj">8</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="8" data-page-node-id="FpBZTgEDYNN22eDZLdEk1A"><div class="block-icon glowstone" data-page-node-id="QG0auHRPrlFF0HBDbSVcYv"></div><span class="key" data-page-node-id="W2Qsv8HI1he5rF6eqqXQ17">9</span><span class="cnt"></span></div>
+                <div class="slot" data-slot="9"><div class="block-icon gun"></div><span class="key">0</span><span class="cnt">∞</span></div>
+            </div>
+            
+            <!-- 合成台 -->
+            <div id="craft-panel" class="hidden">
+                <h3>🛠️ 合成台 <small>按 E 关闭</small></h3>
+                <div id="craft-list"></div>
+            </div>
+            
+            <!-- 调试信息 -->
+            <div id="debug-info" data-page-node-id="T9GGjB9Y46X3WsBdwkjHe2">
+                <div data-page-node-id="mouBhpAei0TPb9USNIYlV2">FPS: <span id="fps" data-page-node-id="Vu32QDKUo6Vqgm54MthLsy">0</span></div>
+                <div data-page-node-id="z494aVSJaeBGGTQNADb7T7">坐标: <span id="coords" data-page-node-id="gMBxdxEPIZycs7VuZFMnOZ">0, 0</span></div>
+                <div data-page-node-id="6DqZli2fNI30J7fnYJU4dy">时间: <span id="time" data-page-node-id="joQFATKddRiXxhdOrS8E7X">白天</span></div>
+            </div>
+            
+            <!-- 提示 -->
+            <div id="controls-hint" data-page-node-id="BGdi0hO2cQE1qWAopgRx04">
+                <p data-page-node-id="5Tv052rLbVVw5NbTdt6xwb">WASD 移动 | 空格跳 | Shift 疾跑/游泳 | 左键挖矿/攻击 | 右键放置 | 数字0=枪：左键朝准星射击 | E 合成台 | Q 物品栏翻页 | P 双人（P2：方向键+J挖+K射）| V 切换视角 | R 回出生点</p>
+            </div>
+        </div>
+        
+        <!-- 开始菜单（voxelcraft 融合：选视角进入 + 种子 + 换世界） -->
+        <div id="menu">
+            <div class="menu-panel">
+                <h1>⛏️ 方块世界 · 三合一</h1>
+                <h2>CRAFTMINE 2D × WILDCRAFT × VOXELCRAFT</h2>
+                <div class="menu-keys">
+                    <div><kbd>WASD</kbd> 移动 · <kbd>空格</kbd> 跳 · <kbd>Shift</kbd> 疾跑/游泳上浮</div>
+                    <div><kbd>左键</kbd> 挖矿/攻击 · <kbd>右键</kbd> 放置 · <kbd>0</kbd> 枪（鼠标指哪打哪）</div>
+                    <div><kbd>E</kbd> 合成台 · <kbd>Q</kbd> 物品栏翻页 · <kbd>P</kbd> 双人同屏</div>
+                    <div><kbd>V</kbd> 游戏中切换视角 · <kbd>R</kbd> 回出生点</div>
+                </div>
+                <div class="menu-label">选择进入视角：</div>
+                <div class="menu-views">
+                    <button class="view-btn" data-view="side">侧面视角<br><small>经典 2D 挖矿</small></button>
+                    <button class="view-btn" data-view="fp">第一人称<br><small>看到自己的手</small></button>
+                    <button class="view-btn" data-view="top">俯视<br><small>从上面看人</small></button>
+                    <button class="view-btn" data-view="under">仰视<br><small>从底下往上看</small></button>
+                </div>
+                <div class="menu-row">
+                    <button class="btn-main" id="btn-start">进入世界</button>
+                    <button class="btn-ghost" id="btn-newworld">换个世界</button>
+                </div>
+                <div class="menu-seed">世界种子 <input id="seed-input" spellcheck="false"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>

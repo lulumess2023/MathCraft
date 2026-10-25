@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="k1dukphyYMczpJuMPSaCfP">
+<head data-page-node-id="Be8gGTOV0hJAAl3UuwPyDV">
+<meta charset="UTF-8" data-page-node-id="mz8Ld906kUdgS2NWjGUUVa">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="6Q9bMiAZyEvU6TCnsVPILl">
+<title>天空岛 · 荒野求生</title>
+<link rel="stylesheet" href="style.css" data-page-node-id="Q5b1sGePlnqOG5fyQ0BvX6">
+</head>
+<body data-page-node-id="Jj1UA3MMerXaPHFoO4ITDW">
+<div id="game-root" data-page-node-id="c8IUh0Y4RdRSeAgaEbJBhG">
+  <canvas id="game" data-page-node-id="JgQrywHVBzCuvtF8OmGLTx"></canvas>
+
+  <div id="hud" data-page-node-id="sOiFleieniSi2vLLbVm1Ty">
+    <div id="topbar" data-page-node-id="dOwCZOaICrKkZjUzYrmQHr">
+      <span id="save-tip" data-page-node-id="fv3MRM956b3h74VUdEZE9k">💾 每 20 秒自动存一次</span>
+      <button id="btn-save" class="tbtn" data-page-node-id="SWAZfhUpXGiwFHwaFLCnqq">💾 立即保存</button>
+      <button id="btn-quit" class="tbtn warn" data-page-node-id="fggplrSFWUwnb5bCfGhBDS">🚪 保存并退出</button>
+    </div>
+    <div class="panel p1" id="panel1" data-page-node-id="TzDsVXxPo948ZS0hpB2jES"></div>
+    <div class="clock" id="clock" data-page-node-id="Ofxa2XGJcwDpj0vhOfVGvm"></div>
+    <div class="panel p2" id="panel2" data-page-node-id="vqtH1BNUmVIYMYv6Plmgzd"></div>
+    <div id="msg" data-page-node-id="OJIxa7P71vlM5qQXYzHYVM"></div>
+    <div id="hint1" class="sidehint p1" data-page-node-id="LKSozv2AZ1CTWFctErR8Zf"></div>
+    <div id="hint2" class="sidehint p2" data-page-node-id="yQIhCQauu0OVCikjwt1GfB"></div>
+    <div id="hint" data-page-node-id="An7EFD12BQ8znT5bLVgXbh"></div>
+  </div>
+
+  <div id="start" data-page-node-id="bZSfhMEgegBN12bNnB2bhq">
+    <div class="box" data-page-node-id="IZBOnEg8gQiSUnmPs3f5nt">
+      <h1 data-page-node-id="C26HRs0ZVpPZA9w7eyKr8U">🏝️ 天空岛 · 荒野求生</h1>
+      <p data-page-node-id="QezhiFUlSKd5JgNYBBWLGN">出生在一座飘在云海上的小岛。<br data-page-node-id="D6X4bRVmRVoLuJ3jkdwlqE">
+      开局先像<b data-page-node-id="chrSelTip">拳皇那样选英雄</b>：鸣人、佐助、孙悟空、钢铁侠、美国队长、蜘蛛侠、奥特曼、皮卡丘 —— 每位英雄速度、血量、攻击都不一样。<br data-page-node-id="chrSelTip2">
+      挖矿、建造、捡装备、开车、召唤守护者、收服小精灵 —— 挖到<b data-page-node-id="0bodOnEE909qX13vrvDf5B">紫色符文石</b>会掉进挑战，两个人配合才出得来。</p>
+      <ul data-page-node-id="GQXBtRmCzlwmx26LifYG5D">
+        <li data-page-node-id="AytuQAPCD1Lr7GTnQDC1HK">天空岛出生，走到<b data-page-node-id="QyewKvCn3aFKhrgnVlbqM2">云洞</b>降到下面的大陆 —— <b data-page-node-id="Jg2bOhAKg6emC7YtO4phbb">800×800</b>，走到哪儿生成到哪儿</li>
+        <li data-page-node-id="aBUFRXpRemgEzS8r4bXgiH">大陆分成四种地貌：<b data-page-node-id="xxhmYsmugjBo5hezoRJXEb">❄️ 冰封雪原</b>（冰宫迷宫里有宝箱）、<b data-page-node-id="phdJDTNfaDtgnNgUVAt6aq">🌴 神秘丛林</b>、<b data-page-node-id="gyZXgMG4sRL3KOaobveMpc">🌋 烈焰山</b>（炎魔的老家）、🌾 平原</li>
+        <li data-page-node-id="k35VnqUekJgLM0gcuyWwdE">夜里会冒出小僵尸、大块头、<b data-page-node-id="2Fl4XjdUAJJcJ4Y93GPcQV">巨人僵尸</b>、<b data-page-node-id="tPkhUFA4Mb224DzVeNv36G">🔥 炎魔</b>，还有最吓人的 <b data-page-node-id="I5yEkUHA8jZtuRkUKX2n9k">🦖 霸王龙</b></li>
+        <li data-page-node-id="O4ffn9RLgecNQ9ibJoe4RV"><b data-page-node-id="enqiyc8szqFY4TpFPiNBRj">🌀 传送门</b>：荒野上的蓝色祭坛通向<b data-page-node-id="dDgtSYNcCSW8mRFKPFf2vv">益智神殿</b>（推箱子），<b data-page-node-id="hfyCeLNGiuRmyAM4JviDDI">城堡里的红门</b>通向<b data-page-node-id="eq9jzCnr87CPEZUcZ4Qh0N">试炼竞技场</b>（守三波怪）</li>
+        <li data-page-node-id="PQVhCqMUapcR42uyK91CFJ"><b data-page-node-id="KxhBPUfm1phC0aaEezKp4K">🔴 收服球</b>：白天能碰到小精灵、豌豆射手、向日葵、坚果墙，把它们打残再扔球，收服后按 <b data-page-node-id="i0hp6DUpK7FO664SPRNwkv">B / ，</b> 放出来当帮手</li>
+        <li data-page-node-id="8YGJ2IrTSvdL7jwOGPI1zW">同一把武器<b data-page-node-id="x8hABTrsuQn4VyTHOVK6Hu">多捡几把会升级</b>（最多 5 级，伤害和射速都涨）；<b data-page-node-id="fhGGBZCN6Mk7HXeB03yNli">坦克能开炮</b>；按 <b data-page-node-id="X2tAQoP4gfyKLIf0vurWld">G / V</b> 互相跟随保护</li>
+        <li data-page-node-id="VALofOll06CLKLdUAl7jgw"><b data-page-node-id="Nq1ZpuQ5MMNnC04DjQ01AI">🌟 集齐七颗龙珠</b>（宝箱、打 Boss、地上捡）→ 按交互键召唤神龙许一个愿</li>
+        <li data-page-node-id="lzYSoIwr7pB8IZSY9sWUdG">游戏每 <b data-page-node-id="DHSfXMETBzV4aWCUzGKR8Q">20 秒自动存档</b>，右上角也能随时手动存 —— 关掉网页下次接着玩</li>
+      </ul>
+
+      <div class="setup" data-page-node-id="k5RbYGCBxRyl6lX5E84WIM">
+        <div class="setup-row" data-page-node-id="l4DFtvcSqnPEWf4NlpWsga">
+          <span class="setup-label" data-page-node-id="V1MmtPXLOWuD3VemaeBQL7">玩家数</span>
+          <button class="opt" data-mode="players" data-val="2" data-page-node-id="yZJe6dVt1GOoDyMDxMrwEV">
+            <span class="oi" data-page-node-id="GDYapgQ14iATzOFd4hlhnG">👫</span><span class="ot" data-page-node-id="omklmQvSaJFP8d3AuUB1Hw">双人</span><span class="od" data-page-node-id="9Q94SFwn3vsanz3xWCF5dE">一人一套键，能合体</span>
+          </button>
+          <button class="opt" data-mode="players" data-val="1" data-page-node-id="ZfRwWv5VeV79xsBgdLLIkI">
+            <span class="oi" data-page-node-id="Dgjk3LIf12DJF3tAjdjqYR">🧍</span><span class="ot" data-page-node-id="8pRp4qDKmHFVmiUJln9MXD">单人</span><span class="od" data-page-node-id="Tq4k9bKUWcwS1CsJ0JHoWO">自己一个人闯</span>
+          </button>
+        </div>
+        <div class="setup-row" data-page-node-id="NgL938lKDPp8RbyMKcCtgN">
+          <span class="setup-label" data-page-node-id="iASmdMo3xe1JBXqxMwBjmH">P1 控制</span>
+          <button class="opt" data-mode="p1ctl" data-val="kb" data-page-node-id="DKkKAq0AA9zAywgxx7pdt2">
+            <span class="oi" data-page-node-id="K8W7ahuZygOzERCljNxLAE">⌨️</span><span class="ot" data-page-node-id="xOFu2ZZLfd63QCVC3a6okS">键盘</span><span class="od" data-page-node-id="5RaKUh1dAAIUUAhPw9mhik">WASD</span>
+          </button>
+          <button class="opt" data-mode="p1ctl" data-val="pad" data-page-node-id="erAJlcjHtkt1nrA3Xh8AVM">
+            <span class="oi" data-page-node-id="jbl2HUbgtsvKBwwKLmgtFc">🎮</span><span class="ot" data-page-node-id="MNBMYwQ2f0oGta28tK04DN">手柄</span><span class="od" data-page-node-id="4VZNmB7vDELrzTRnoVAmXu">1 号手柄</span>
+          </button>
+        </div>
+        <div class="setup-row p2ctl-row" data-page-node-id="fIQdFpvkidB1t43aiCEjx7">
+          <span class="setup-label" data-page-node-id="XnPwwqdbEMCpaobtHJEjvp">P2 控制</span>
+          <button class="opt" data-mode="p2ctl" data-val="kb" data-page-node-id="Hbs1rDQpS9qgPHxPJdIsrT">
+            <span class="oi" data-page-node-id="1Vp5sIDTt22VSqWdufi9bB">⌨️</span><span class="ot" data-page-node-id="EYkdTECqGj917wrCbvA71Q">键盘</span><span class="od" data-page-node-id="oXWWs4q9jXVHTlGL3NdUby">方向键</span>
+          </button>
+          <button class="opt" data-mode="p2ctl" data-val="pad" data-page-node-id="cntXHS4f71LCQ8ZshV1IJK">
+            <span class="oi" data-page-node-id="ic8Ymwto2nvx1ny2xZzU0D">🎮</span><span class="ot" data-page-node-id="4v9vu6r89vDftwRDsRLXoU">手柄</span><span class="od" data-page-node-id="8wLuMU4A2HAZiTeg2TFM4P">2 号手柄</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="charsel" style="display:none" data-page-node-id="csRoot">
+        <div class="cs-head" id="cs-head" data-page-node-id="csHead">选你的英雄</div>
+        <div class="cs-grid" id="cs-grid" data-page-node-id="csGrid"></div>
+        <div class="cs-detail" id="cs-detail" data-page-node-id="csDetail"></div>
+        <div class="cs-btns" data-page-node-id="csBtns">
+          <button id="btn-cs-back" class="opt" data-page-node-id="csBack">← 返回设置</button>
+        </div>
+      </div>
+
+      <div class="startbtns" data-page-node-id="eHVzUWp3rs7KGARH8BcYjz">
+        <button id="btn-continue" class="big cont" data-page-node-id="Qzh4BrBZRfepD2ZD6YXbt5">📂 继续上次冒险</button>
+        <button id="btn-start" class="big" data-page-node-id="LeAyar073e6UFY2eb4jiCu">▶ 开始新的冒险</button>
+      </div>
+      <p class="tip" id="continue-info" data-page-node-id="7Bhc2n1fdOfdWpSwVnCkET"></p>
+      <p class="tip" id="gp-status" data-page-node-id="FB5Y4ffeXm7C2NYhoDXC8l">未检测到手柄（可以先接上手柄再刷新本页）</p>
+    </div>
+  </div>
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/world.js"></script>
+<script src="js/items.js"></script>
+<script src="js/quests.js"></script>
+<script src="js/maze.js"></script>
+<script src="js/vehicles.js"></script>
+<script src="js/challenges.js"></script>
+<script src="js/chars.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/realm.js"></script>
+<script src="js/save.js"></script>
+<script src="js/gamepad.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# 浏览器缓存 / 截图，不入库
+.edgeprof/
+**/.edgeprof/
+wc-*.png

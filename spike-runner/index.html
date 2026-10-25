@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>跳跳大逃亡 · 双人版 Jump Jump Duo</title>
+<style>
+  :root {
+    --bg: #1a1c2c; --panel: #272b40; --accent: #ffcd58; --text: #e8ecf8; --sub: #9aa3c0;
+    --p1: #3fa7f2; --p2: #ff7b5d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    width: 100%; height: 100%; background: var(--bg);
+    font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+    color: var(--text); overflow: hidden; touch-action: manipulation;
+    user-select: none; -webkit-user-select: none;
+  }
+  #app { position: relative; width: 100%; height: 100%; }
+  canvas { display: block; width: 100%; height: 100%; background: var(--bg); }
+
+  .overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 16px;
+    background: rgba(18, 20, 32, 0.86); backdrop-filter: blur(3px); overflow-y: auto;
+  }
+  .hidden { display: none !important; }
+
+  h1 { font-size: 38px; letter-spacing: 2px; margin-bottom: 2px; color: var(--accent); text-shadow: 0 3px 0 #0008; }
+  .subtitle { color: var(--sub); font-size: 13px; margin-bottom: 16px; }
+
+  .panel {
+    background: var(--panel); border-radius: 18px; padding: 16px 18px;
+    width: min(560px, 95vw); box-shadow: 0 12px 40px #000a;
+  }
+
+  .pick-block { margin-bottom: 14px; }
+  .pick-head { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 9px; letter-spacing: .5px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.p1 { background: var(--p1); box-shadow: 0 0 10px var(--p1); }
+  .dot.p2 { background: var(--p2); box-shadow: 0 0 10px var(--p2); }
+  .pick-name { color: var(--sub); font-weight: 600; margin-left: auto; font-size: 13px; }
+
+  .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .char-card {
+    position: relative; aspect-ratio: 1; border-radius: 12px; cursor: pointer;
+    border: 3px solid transparent; background: #1e2236;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .1s, border-color .1s;
+  }
+  .char-card:hover { transform: translateY(-3px); }
+  .char-card.sel.p1sel { border-color: var(--p1); box-shadow: 0 0 16px #3fa7f255; }
+  .char-card.sel.p2sel { border-color: var(--p2); box-shadow: 0 0 16px #ff7b5d55; }
+  .char-card canvas { width: 74%; height: 74%; }
+  .char-name { position: absolute; bottom: 4px; left: 0; right: 0; font-size: 10px; color: #cdd4ea; font-weight: 600; }
+
+  .btn {
+    display: inline-block; border: none; cursor: pointer; font-family: inherit;
+    font-weight: 700; letter-spacing: 1px; padding: 13px 40px; font-size: 19px;
+    border-radius: 14px; color: #201703; background: linear-gradient(180deg, #ffe08a, #ffcd58);
+    box-shadow: 0 8px 0 #b98a1e, 0 14px 30px #0008; transition: transform .1s, box-shadow .1s; margin: 3px;
+  }
+  .btn:active { transform: translateY(5px); box-shadow: 0 3px 0 #b98a1e, 0 8px 16px #0008; }
+  .btn.ghost { background: #343a54; color: #e8ecf8; box-shadow: 0 8px 0 #20243a; }
+
+  .score-big { font-size: 56px; font-weight: 800; color: var(--accent); line-height: 1; margin: 4px 0 2px; text-shadow: 0 3px 0 #0008; }
+  .score-label { color: var(--sub); font-size: 13px; margin-bottom: 12px; }
+  .best { color: #7fd97f; font-weight: 700; margin-bottom: 14px; font-size: 15px; }
+  .best.new { animation: pop .5s ease; }
+  @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
+  .stat-row { display: flex; justify-content: center; gap: 26px; margin-bottom: 14px; }
+  .stat { font-size: 14px; color: var(--sub); }
+  .stat b { display: block; font-size: 26px; color: var(--text); margin-top: 2px; }
+
+  .howto { margin-top: 12px; font-size: 12px; color: var(--sub); line-height: 1.9; text-align: left; }
+  .key { display: inline-block; padding: 0 6px; margin: 0 1px; border-radius: 5px; background: #343a54;
+         color: #ffcd58; font-weight: 700; border: 1px solid #4a5170; font-size: 11px; }
+  .tag1 { color: var(--p1); font-weight: 700; }
+  .tag2 { color: var(--p2); font-weight: 700; }
+  .big-jump { color: var(--accent); font-weight: 700; }
+
+  .rescue-btn {
+    position: absolute; bottom: 11%; padding: 15px 22px; border: none; border-radius: 16px;
+    font-family: inherit; font-weight: 800; font-size: 17px; color: #fff; cursor: pointer;
+    animation: pulse .55s infinite alternate; z-index: 5;
+  }
+  .rescue-btn.p1 { left: 5%; background: linear-gradient(180deg,#4fb4f8,#2b7fd0); box-shadow: 0 0 22px #3fa7f2aa; }
+  .rescue-btn.p2 { right: 5%; background: linear-gradient(180deg,#ff9878,#d9522d); box-shadow: 0 0 22px #ff7b5daa; }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+
+  .hud-note { position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+              font-size: 13px; color: #6f7894; letter-spacing: 1px; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="game"></canvas>
+  <div class="hud-note" id="hudNote"></div>
+  <button class="rescue-btn p1 hidden" id="rescue1">救队友</button>
+  <button class="rescue-btn p2 hidden" id="rescue2">救队友</button>
+
+  <div class="overlay" id="menuScreen">
+    <h1>跳跳大逃亡</h1>
+    <div class="subtitle">Jump Jump Duo · 一条线，只跳就完事</div>
+    <div class="panel">
+      <div class="pick-block">
+        <div class="pick-head"><span class="dot p1"></span>玩家 1 选角色<span class="pick-name" id="p1name"></span></div>
+        <div class="char-grid" id="grid1"></div>
+      </div>
+      <div class="pick-block">
+        <div class="pick-head"><span class="dot p2"></span>玩家 2 选角色<span class="pick-name" id="p2name"></span></div>
+        <div class="char-grid" id="grid2"></div>
+      </div>
+      <button class="btn" id="startBtn">开始跳</button>
+      <div class="howto">
+        <span class="big-jump">整局只有一个动作：跳！</span><br>
+        <span class="tag1">玩家1</span> <span class="key">W</span> 或 <span class="key">空格</span> 跳 · <span class="key">E</span> 救队友<br>
+        <span class="tag2">玩家2</span> <span class="key">↑</span> 跳 · <span class="key">/</span> 救队友<br>
+        手机：左半屏点一下 = 玩家1 跳，右半屏点一下 = 玩家2 跳；队友倒地时点「救队友」<br>
+        躲开木箱和石墩，被撞倒后队友 3 秒内救你；两人都倒下就结束
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="endScreen">
+    <h1>两人都倒下了</h1>
+    <div class="subtitle" id="endSub"></div>
+    <div class="panel">
+      <div class="score-label">一起跑了</div>
+      <div class="score-big" id="endScore">0</div>
+      <div class="best" id="endBest">最高分 0</div>
+      <div class="stat-row">
+        <div class="stat"><span id="s1name">玩家1</span><b id="s1rescue">0</b>救人次数</div>
+        <div class="stat"><span id="s2name">玩家2</span><b id="s2rescue">0</b>救人次数</div>
+      </div>
+      <button class="btn" id="restartBtn">再来一次</button>
+      <button class="btn ghost" id="menuBtn">换角色</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+(function () {
+  // ============ 角色清单（8 个：彩色 + 忍者） ============
+  const CHARS = [
+    { id: "blue",   name: "小蓝",   skin: "#ffd9a0", body: "#3fa7f2", dark: "#2b7fd0", accent: "#dff3ff", hat: "none" },
+    { id: "red",    name: "小红",   skin: "#ffd9a0", body: "#f2543d", dark: "#c8402d", accent: "#ffd9a0", hat: "none" },
+    { id: "green",  name: "小绿",   skin: "#ffd9a0", body: "#5ac466", dark: "#3d9c48", accent: "#e0ffdf", hat: "none" },
+    { id: "purple", name: "小紫",   skin: "#ffd9a0", body: "#9b6cf0", dark: "#7b50c8", accent: "#e8dcff", hat: "none" },
+    { id: "orange", name: "小橙",   skin: "#ffd9a0", body: "#ff9c3f", dark: "#d9771f", accent: "#fff0d6", hat: "beanie" },
+    { id: "ninjaK", name: "黑忍者", skin: "#ffd9a0", mask: "#343b56", body: "#454d70", dark: "#262c42", accent: "#ff5d5d", hat: "ninja" },
+    { id: "ninjaW", name: "白忍者", skin: "#ffd9a0", mask: "#eef1fa", body: "#ccd5ee", dark: "#98a3c4", accent: "#3fa7f2", hat: "ninja" },
+    { id: "ninjaP", name: "粉忍者", skin: "#ffd9a0", mask: "#f7b3d6", body: "#ee6fb0", dark: "#c74d8c", accent: "#ffe6f4", hat: "ninja" },
+  ];
+
+  // ============ 画布 ============
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  let W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  let GROUND_Y = 0;
+
+  function resize() {
+    W = canvas.clientWidth || window.innerWidth;
+    H = canvas.clientHeight || window.innerHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    GROUND_Y = Math.round(H * 0.78);
+    if (p1) { p1.x = W * 0.20; p2.x = W * 0.30; }
+  }
+
+  // ============ 状态 ============
+  const M = { MENU: 0, PLAY: 1, OVER: 2 };
+  let mode = M.MENU;
+  let p1Idx = 0, p2Idx = 5;   // 默认：小蓝 + 黑忍者
+  let best = parseInt(localStorage.getItem("spikeRunnerDuoBest") || "0", 10);
+
+  // ============ 音效 ============
+  let AC = null;
+  function audio() {
+    if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+    return AC;
+  }
+  function beep(freq, dur, type, vol) {
+    const ac = audio(); if (!ac) return;
+    try {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type || "square"; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol || 0.07, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+      o.connect(g); g.connect(ac.destination);
+      o.start(); o.stop(ac.currentTime + dur);
+    } catch (e) {}
+  }
+  const sfx = {
+    jump:   () => beep(440, 0.11, "square", 0.05),
+    hurt:   () => beep(260, 0.18, "sawtooth", 0.08),
+    rescue: () => { beep(520, 0.09, "square", 0.07); setTimeout(() => beep(780, 0.14, "square", 0.07), 80); },
+    out:    () => beep(120, 0.32, "sawtooth", 0.09),
+    over:   () => { beep(300, 0.2, "sawtooth", 0.09); setTimeout(() => beep(150, 0.35, "sawtooth", 0.09), 130); },
+  };
+
+  // ============ 实体 ============
+  let p1, p2, players, obstacles, particles;
+  let speed, distance, spawnTimer, shake, flash;
+
+  function makePlayer(idx) {
+    return {
+      idx,
+      x: idx === 0 ? W * 0.20 : W * 0.30,
+      y: GROUND_Y, vy: 0,
+      w: 32, h: 52,
+      grounded: true, runT: idx * 1.7,
+      down: false, out: false, rescueT: 0, invuln: 0, rescueCd: 0, rescues: 0,
+    };
+  }
+
+  function resetGame() {
+    p1 = makePlayer(0); p2 = makePlayer(1);
+    players = [p1, p2];
+    obstacles = []; particles = [];
+    speed = 5.0; distance = 0;
+    spawnTimer = 1.2;          // 开局给 1.2 秒缓冲
+    shake = 0; flash = 0;
+    updateRescueBtns();
+  }
+
+  // ---- 节奏参数（按「秒」计间距，保证任何速度下都跳得过来） ----
+  const TUNE = {
+    GRAV: 0.62, JUMP_V: 11.8,     // 跳跃：最高约 118px，滞空约 0.63s
+    MAX_OBSTACLE: 66,             // 最高的木箱堆
+    speedAt: (d) => Math.min(5.0 + d / 3200, 11),
+    gapSecAt: (d) => Math.max(1.0, 1.6 - d / 9000),
+  };
+
+  // ============ 障碍（全部是「跳过去」的：木箱 / 石墩 / 木箱堆） ============
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  function spawnObstacle() {
+    const roll = Math.random();
+    if (roll < 0.45) {
+      // 木箱：最普通
+      const s = rnd(32, 40);
+      obstacles.push(mkObs("crate", s, s));
+    } else if (roll < 0.75) {
+      // 石墩：矮而宽
+      obstacles.push(mkObs("stone", rnd(46, 58), rnd(24, 32)));
+    } else {
+      // 木箱堆：高一点，要跳得早
+      obstacles.push(mkObs("stack", 34, rnd(56, 66)));
+    }
+  }
+
+  function mkObs(type, w, h) {
+    return { type, x: W + 40, y: GROUND_Y, w, h };
+  }
+
+  // ============ 玩家动作（只有跳！） ============
+  function jump(p) {
+    if (!p || p.down || p.out || mode !== M.PLAY) return;
+    if (p.grounded) { p.vy = -11.8; p.grounded = false; sfx.jump(); }
+  }
+
+  // 救助：施救者活着 -> 拉起倒地的队友
+  function rescue(healerIdx) {
+    if (mode !== M.PLAY) return;
+    const healer = players[healerIdx], mate = players[1 - healerIdx];
+    if (healer.down || healer.out || healer.rescueCd > 0) return;
+    if (!mate.down || mate.out) return;
+    mate.down = false; mate.rescueT = 0; mate.invuln = 1.6;
+    mate.y = GROUND_Y; mate.vy = 0; mate.grounded = true;
+    healer.rescues++; healer.rescueCd = 0.9;
+    for (let i = 0; i < 18; i++) {
+      const a = (i / 18) * Math.PI * 2;
+      particles.push({ x: mate.x, y: GROUND_Y - 26, vx: Math.cos(a) * 3.2, vy: Math.sin(a) * 3.2 - 1,
+                       s: 4, life: 26, maxLife: 26, color: "#7fd97f" });
+    }
+    sfx.rescue();
+    updateRescueBtns();
+  }
+
+  // ============ 输入：键盘（只有跳 + 救） ============
+  window.addEventListener("keydown", (e) => {
+    if (e.repeat) return;
+    const c = e.code;
+    if (c === "Space" || c === "KeyW") { e.preventDefault(); jump(p1); }
+    else if (c === "ArrowUp") { e.preventDefault(); jump(p2); }
+    else if (c === "KeyE") { e.preventDefault(); rescue(0); }
+    else if (c === "Slash" || c === "Numpad0" || c === "ShiftRight") { e.preventDefault(); rescue(1); }
+    else if (c === "Enter") { e.preventDefault(); if (mode === M.MENU || mode === M.OVER) startGame(); }
+  });
+
+  // ============ 输入：触摸 / 鼠标（左半屏=P1，右半屏=P2，点一下就跳） ============
+  function tapPlayer(clientX) { jump(players[clientX < W / 2 ? 0 : 1]); }
+
+  canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (audio() && AC.state === "suspended") AC.resume();
+    for (const t of e.changedTouches) tapPlayer(t.clientX);
+  }, { passive: false });
+  // 触摸时避免页面滚动 / 缩放
+  canvas.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+  canvas.addEventListener("mousedown", (e) => { tapPlayer(e.clientX); });
+
+  // ============ 菜单 ============
+  const grid1 = document.getElementById("grid1"), grid2 = document.getElementById("grid2");
+  const menuScreen = document.getElementById("menuScreen"), endScreen = document.getElementById("endScreen");
+  const hudNote = document.getElementById("hudNote");
+  const rescueBtns = [document.getElementById("rescue1"), document.getElementById("rescue2")];
+
+  function buildGrid(container, which) {
+    container.innerHTML = "";
+    CHARS.forEach((c, i) => {
+      const card = document.createElement("div");
+      const sel = (which === 1 ? p1Idx : p2Idx) === i;
+      card.className = "char-card" + (sel ? " sel " + (which === 1 ? "p1sel" : "p2sel") : "");
+      const cv = document.createElement("canvas");
+      cv.width = 120; cv.height = 120;
+      drawHero(cv.getContext("2d"), c, 60, 94, 52, 0.9, 1);
+      const nm = document.createElement("div");
+      nm.className = "char-name"; nm.textContent = c.name;
+      card.appendChild(cv); card.appendChild(nm);
+      card.addEventListener("click", () => {
+        if (which === 1) p1Idx = i; else p2Idx = i;
+        buildGrid(grid1, 1); buildGrid(grid2, 2); updateNames();
+      });
+      container.appendChild(card);
+    });
+  }
+  function updateNames() {
+    document.getElementById("p1name").textContent = CHARS[p1Idx].name;
+    document.getElementById("p2name").textContent = CHARS[p2Idx].name;
+  }
+
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  document.getElementById("restartBtn").addEventListener("click", startGame);
+  document.getElementById("menuBtn").addEventListener("click", () => {
+    mode = M.MENU; endScreen.classList.add("hidden"); menuScreen.classList.remove("hidden");
+    hideRescueBtns();
+  });
+  rescueBtns[0].addEventListener("click", (e) => { e.stopPropagation(); rescue(0); });
+  rescueBtns[1].addEventListener("click", (e) => { e.stopPropagation(); rescue(1); });
+
+  function startGame() {
+    if (audio() && AC.state === "suspended") AC.resume();
+    mode = M.PLAY;
+    menuScreen.classList.add("hidden"); endScreen.classList.add("hidden");
+    hideRescueBtns();
+    hudNote.textContent = CHARS[p1Idx].name + "  和  " + CHARS[p2Idx].name + "  开始跳！";
+    setTimeout(() => { if (mode === M.PLAY) hudNote.textContent = ""; }, 1600);
+    resetGame();
+  }
+
+  function gameOver() {
+    mode = M.OVER; sfx.over(); shake = 16; flash = 1;
+    const sc = Math.floor(distance / 8);
+    let newBest = false;
+    if (sc > best) { best = sc; newBest = true; localStorage.setItem("spikeRunnerDuoBest", String(best)); }
+    document.getElementById("endScore").textContent = sc;
+    document.getElementById("endSub").textContent = "一起跳了 " + sc + " 米";
+    const eb = document.getElementById("endBest");
+    eb.textContent = "最高分 " + best; eb.classList.toggle("new", newBest);
+    document.getElementById("s1name").textContent = CHARS[p1Idx].name;
+    document.getElementById("s2name").textContent = CHARS[p2Idx].name;
+    document.getElementById("s1rescue").textContent = p1.rescues;
+    document.getElementById("s2rescue").textContent = p2.rescues;
+    hideRescueBtns();
+    setTimeout(() => { if (mode === M.OVER) endScreen.classList.remove("hidden"); }, 500);
+  }
+
+  function updateRescueBtns() {
+    if (mode !== M.PLAY || !p1 || !p2) { hideRescueBtns(); return; }
+    rescueBtns[0].classList.toggle("hidden", !(!p1.down && !p1.out && p2.down && !p2.out));
+    rescueBtns[1].classList.toggle("hidden", !(!p2.down && !p2.out && p1.down && !p1.out));
+  }
+  function hideRescueBtns() { rescueBtns[0].classList.add("hidden"); rescueBtns[1].classList.add("hidden"); }
+
+  // ============ 碰撞 ============
+  function playerBox(p) { return { x: p.x - p.w / 2, y: p.y - p.h, w: p.w, h: p.h }; }
+  function obBox(o) { return { x: o.x - o.w / 2, y: o.y - o.h, w: o.w, h: o.h }; }
+  function hit(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
+
+  function knockDown(p) {
+    p.down = true; p.rescueT = 3.0; p.vy = 0;
+    sfx.hurt(); shake = 12; flash = 0.7;
+    for (let i = 0; i < 14; i++) {
+      particles.push({ x: p.x, y: GROUND_Y - 30, vx: rnd(-4, 4), vy: rnd(-6, -1),
+                       s: 5, life: 28, maxLife: 28, color: "#d9b98a" });
+    }
+    updateRescueBtns();
+  }
+
+  // ============ 更新 ============
+  function update(dt) {
+    if (mode !== M.PLAY) return;
+    const T = dt;
+
+    speed = TUNE.speedAt(distance);
+    distance += speed * T;
+
+    // 按时间计间距：不管跑多快，两个障碍之间都留出够跳一次的时间
+    spawnTimer -= 0.01667 * T;
+    if (spawnTimer <= 0) {
+      spawnObstacle();
+      spawnTimer = TUNE.gapSecAt(distance) * rnd(0.92, 1.22);
+    }
+
+    for (const p of players) {
+      if (p.rescueCd > 0) p.rescueCd -= 0.016 * T;
+      if (p.invuln > 0) p.invuln -= 0.016 * T;
+      if (p.out) continue;
+      if (p.down) {
+        p.rescueT -= 0.016 * T;
+        if (p.rescueT <= 0) {
+          p.out = true; p.down = false; sfx.out();
+          for (let i = 0; i < 20; i++) {
+            particles.push({ x: p.x, y: GROUND_Y - 30, vx: rnd(-5, 5), vy: rnd(-7, -2),
+                             s: 4, life: 34, maxLife: 34, color: "#8a8fb0" });
+          }
+          updateRescueBtns();
+        }
+        continue;
+      }
+      p.grounded = false;
+      p.vy += 0.62 * T;
+      p.y += p.vy * T;
+      if (p.y >= GROUND_Y) { p.y = GROUND_Y; p.vy = 0; p.grounded = true; }
+      p.runT += 0.16 * T;
+    }
+
+    for (const o of obstacles) {
+      o.x -= speed * T;
+      const bb = obBox(o), S = 4;
+      for (const p of players) {
+        if (p.down || p.out || p.invuln > 0) continue;
+        const pb = playerBox(p);
+        const a = { x: pb.x + S, y: pb.y + S, w: pb.w - S * 2, h: pb.h - S * 2 };
+        const b = { x: bb.x + S, y: bb.y + S, w: bb.w - S * 2, h: bb.h - S * 2 };
+        if (hit(a, b)) { knockDown(p); break; }
+      }
+    }
+    obstacles = obstacles.filter(o => o.x + o.w / 2 > -60);
+
+    for (const pt of particles) { pt.x += pt.vx * T; pt.y += pt.vy * T; pt.vy += 0.3 * T; pt.life -= T; }
+    particles = particles.filter(pt => pt.life > 0);
+
+    if (shake > 0) shake *= 0.88;
+    if (flash > 0) flash *= 0.92;
+
+    if (players.every(p => p.out)) gameOver();
+  }
+
+  // ============ 绘制：角色 ============
+  function drawHero(c, ch, cx, footY, h, runT, alpha) {
+    const body = ch.body, dark = ch.dark, accent = ch.accent;
+    const ninja = ch.hat === "ninja";
+    const headColor = ninja ? (ch.mask || "#343b56") : ch.skin;
+    const bodyH = h * 0.5;
+    const headR = h * 0.21;
+    const headY = footY - h + headR;
+    const bodyTop = headY + headR * 0.6;
+    const baseA = (alpha == null) ? 1 : alpha;
+
+    c.save();
+    c.lineJoin = "round";
+    c.globalAlpha = baseA;
+
+    // 腿（跑动交替）
+    const sw = Math.sin(runT) * h * 0.14;
+    c.strokeStyle = dark; c.lineWidth = h * 0.12; c.lineCap = "round";
+    c.beginPath(); c.moveTo(cx - h * 0.1, bodyTop); c.lineTo(cx - h * 0.1 - sw, footY - 2); c.stroke();
+    c.beginPath(); c.moveTo(cx + h * 0.1, bodyTop); c.lineTo(cx + h * 0.1 + sw, footY - 2); c.stroke();
+
+    // 身体
+    const bw = h * 0.34;
+    c.fillStyle = body;
+    c.beginPath(); c.roundRect(cx - bw / 2, bodyTop, bw, bodyH, h * 0.08); c.fill();
+    c.globalAlpha = baseA * 0.45;
+    c.fillStyle = accent;
+    c.beginPath(); c.roundRect(cx - bw / 2 + 3, bodyTop + 3, bw - 8, bodyH * 0.3, 3); c.fill();
+    c.globalAlpha = baseA;
+
+    // 头
+    c.fillStyle = headColor;
+    c.beginPath(); c.arc(cx, headY, headR, 0, Math.PI * 2); c.fill();
+
+    if (ninja) {
+      c.fillStyle = ch.skin;
+      c.beginPath(); c.roundRect(cx - headR * 0.95, headY - headR * 0.3, headR * 1.9, headR * 0.6, headR * 0.2); c.fill();
+      c.fillStyle = "#20242f";
+      c.beginPath(); c.arc(cx + headR * 0.42, headY, headR * 0.17, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(cx - headR * 0.06, headY, headR * 0.17, 0, Math.PI * 2); c.fill();
+      c.fillStyle = accent;
+      c.beginPath(); c.roundRect(cx - headR * 1.02, headY - headR * 0.76, headR * 2.04, headR * 0.34, 2); c.fill();
+      c.strokeStyle = accent; c.lineWidth = h * 0.06; c.lineCap = "round";
+      c.beginPath();
+      c.moveTo(cx - headR * 0.9, headY - headR * 0.58);
+      c.quadraticCurveTo(cx - headR * 1.7 - Math.sin(runT) * 3, headY - headR * 0.15, cx - headR * 1.55, headY + headR * 0.35);
+      c.stroke();
+    } else {
+      c.fillStyle = "#20242f";
+      c.beginPath(); c.arc(cx + headR * 0.45, headY - headR * 0.08, headR * 0.16, 0, Math.PI * 2); c.fill();
+      if (ch.hat === "beanie") {
+        c.fillStyle = accent;
+        c.beginPath(); c.arc(cx, headY - headR * 0.45, headR * 0.95, Math.PI, 0); c.fill();
+        c.fillStyle = dark; c.fillRect(cx - headR, headY - headR * 0.5, headR * 2, headR * 0.28);
+        c.fillStyle = accent;
+        c.beginPath(); c.arc(cx, headY - headR * 0.95, headR * 0.16, 0, Math.PI * 2); c.fill();
+      } else {
+        c.fillStyle = dark;
+        c.beginPath(); c.arc(cx, headY - headR * 0.35, headR * 0.92, Math.PI, 0); c.fill();
+      }
+      c.strokeStyle = accent; c.lineWidth = h * 0.08;
+      c.beginPath();
+      c.moveTo(cx - bw * 0.6, bodyTop + 2);
+      c.quadraticCurveTo(cx - bw * 0.9 - Math.sin(runT) * 4, bodyTop + h * 0.16, cx - bw * 0.8, bodyTop + h * 0.26);
+      c.stroke();
+    }
+
+    c.restore();
+  }
+
+  // ============ 绘制：障碍（木箱 / 石墩，圆润不吓人） ============
+  function drawCrate(x, y, w, h) {
+    ctx.save();
+    ctx.translate(x, y - h / 2);
+    const r = Math.min(6, w * 0.18);
+    ctx.fillStyle = "#d99a55"; ctx.strokeStyle = "#9a6528"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2, w, h, r); ctx.fill(); ctx.stroke();
+    // 木纹十字
+    ctx.strokeStyle = "#9a6528"; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(-w / 2 + 5, -h / 2 + 5); ctx.lineTo(w / 2 - 5, h / 2 - 5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(w / 2 - 5, -h / 2 + 5); ctx.lineTo(-w / 2 + 5, h / 2 - 5); ctx.stroke();
+    // 高光
+    ctx.fillStyle = "#ffd9a8"; ctx.globalAlpha = 0.5;
+    ctx.beginPath(); ctx.roundRect(-w / 2 + 5, -h / 2 + 5, w - 12, h * 0.2, 3); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawStone(x, y, w, h) {
+    ctx.save();
+    ctx.translate(x, y - h / 2);
+    const r = Math.min(h * 0.45, w * 0.4);
+    ctx.fillStyle = "#a9b2c7"; ctx.strokeStyle = "#6d748d"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2, w, h, r); ctx.fill(); ctx.stroke();
+    // 石纹
+    ctx.fillStyle = "#8b93a9";
+    ctx.beginPath(); ctx.arc(-w * 0.16, -h * 0.02, Math.max(2, h * 0.1), 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(w * 0.2, h * 0.1, Math.max(2, h * 0.08), 0, Math.PI * 2); ctx.fill();
+    // 高光
+    ctx.fillStyle = "#dfe5f2"; ctx.globalAlpha = 0.55;
+    ctx.beginPath(); ctx.roundRect(-w / 2 + 6, -h / 2 + 4, w - 14, h * 0.24, 3); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawObstacle(o) {
+    if (o.type === "crate") drawCrate(o.x, o.y, o.w, o.h);
+    else if (o.type === "stone") drawStone(o.x, o.y, o.w, o.h);
+    else { // stack：两只木箱叠起来
+      const each = o.h / 2;
+      drawCrate(o.x, o.y, o.w, each);
+      drawCrate(o.x, o.y - each, o.w, each);
+    }
+  }
+
+  // ============ 绘制：背景 / 玩家 / HUD ============
+  function drawBackground() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#2a2f4a"); g.addColorStop(0.7, "#3a2f52"); g.addColorStop(1, "#1a1c2c");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    for (let i = 0; i < 40; i++) {
+      const sx = (i * 71 + 13) % W, sy = (i * 37 + 7) % (GROUND_Y * 0.7);
+      ctx.globalAlpha = (0.4 + 0.6 * Math.abs(Math.sin(Date.now() / 1200 + i))) * 0.7;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.fillStyle = "#262a44";
+    ctx.beginPath(); ctx.moveTo(0, GROUND_Y);
+    for (let x = 0; x <= W; x += 40) ctx.lineTo(x, GROUND_Y - 40 - Math.abs(Math.sin(x * 0.008 + distance * 0.0005)) * 60);
+    ctx.lineTo(W, GROUND_Y); ctx.closePath(); ctx.fill();
+
+    // 一条跑道线
+    ctx.fillStyle = "#232741"; ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+    ctx.strokeStyle = "#3a3f63"; ctx.lineWidth = 2;
+    const off = (distance * 1.0) % 44;
+    for (let x = -off; x < W; x += 44) { ctx.beginPath(); ctx.moveTo(x, GROUND_Y + 6); ctx.lineTo(x + 16, GROUND_Y + 6); ctx.stroke(); }
+    ctx.fillStyle = "#ffcd58"; ctx.fillRect(0, GROUND_Y - 2, W, 2);
+  }
+
+  function drawPlayer(p) {
+    if (!p || p.out) return;
+    const ch = CHARS[p.idx === 0 ? p1Idx : p2Idx];
+    if (p.down) {
+      const blink = 0.35 + 0.65 * Math.abs(Math.sin(Date.now() / 150));
+      ctx.save();
+      ctx.translate(p.x, GROUND_Y);
+      ctx.rotate(-Math.PI / 2 * 0.82);
+      drawHero(ctx, ch, 0, 0, p.h, 0, blink);
+      ctx.restore();
+      const t = Math.max(p.rescueT, 0) / 3.0;
+      ctx.save();
+      ctx.strokeStyle = "#2b2f45"; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.arc(p.x, GROUND_Y - p.h - 22, 14, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = "#7fd97f"; ctx.lineWidth = 5; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.arc(p.x, GROUND_Y - p.h - 22, 14, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * t); ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.font = "700 13px 'Microsoft YaHei',sans-serif"; ctx.textAlign = "center";
+      ctx.fillStyle = "#7fd97f"; ctx.fillText("快救我 " + p.rescueT.toFixed(1), p.x, GROUND_Y - p.h - 42);
+      ctx.restore();
+    } else {
+      const alpha = p.invuln > 0 ? (0.45 + 0.55 * Math.abs(Math.sin(Date.now() / 90))) : 1;
+      drawHero(ctx, ch, p.x, p.y, p.h, p.runT, alpha);
+    }
+  }
+
+  function drawHUD() {
+    if (mode !== M.PLAY) return;
+    const sc = Math.floor(distance / 8);
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.font = "800 34px 'Segoe UI','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = "#0008"; ctx.fillText(sc, 22, 50);
+    ctx.fillStyle = "#ffcd58"; ctx.fillText(sc, 20, 48);
+    ctx.font = "600 13px 'Microsoft YaHei',sans-serif";
+    ctx.fillStyle = "#9aa3c0";
+    ctx.fillText("米", 20 + ctx.measureText(String(sc)).width + 26, 48);
+
+    const rows = [
+      { p: p1, ch: CHARS[p1Idx], color: "#3fa7f2", label: "P1" },
+      { p: p2, ch: CHARS[p2Idx], color: "#ff7b5d", label: "P2" },
+    ];
+    rows.forEach((r, i) => {
+      const y = 78 + i * 26;
+      ctx.fillStyle = r.color; ctx.beginPath(); ctx.arc(22, y - 5, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.font = "700 14px 'Microsoft YaHei',sans-serif"; ctx.fillStyle = "#cdd4ea";
+      ctx.fillText(r.label + " " + r.ch.name, 36, y);
+      let st = "在跳", c = "#7fd97f";
+      if (r.p.out) { st = "出局"; c = "#8a8fb0"; }
+      else if (r.p.down) { st = "被撞倒 " + r.p.rescueT.toFixed(1) + "s"; c = "#ff7b7b"; }
+      ctx.fillStyle = c;
+      ctx.fillText(st, 132, y);
+      ctx.fillStyle = "#6f7894";
+      ctx.fillText("救 " + r.p.rescues, 236, y);
+    });
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    if (shake > 0.4) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+    drawBackground();
+    for (const o of obstacles) drawObstacle(o);
+    if (mode !== M.MENU) { drawPlayer(p1); drawPlayer(p2); }
+    for (const pt of particles) {
+      ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+      ctx.fillStyle = pt.color;
+      ctx.fillRect(pt.x - pt.s / 2, pt.y - pt.s / 2, pt.s, pt.s);
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    if (flash > 0.02) { ctx.fillStyle = "rgba(255,255,255," + flash.toFixed(3) + ")"; ctx.fillRect(0, 0, W, H); }
+    drawHUD();
+  }
+
+  // ============ 主循环（异常保护） ============
+  let last = 0;
+  function frame(t) {
+    try {
+      const dt = Math.min((t - last) / 16.67 || 1, 3);
+      last = t;
+      update(dt);
+      draw();
+    } catch (err) {
+      console.error("frame error:", err);
+    } finally {
+      requestAnimationFrame(frame);
+    }
+  }
+
+  // roundRect 兜底
+  if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+      r = Math.min(r, w / 2, h / 2);
+      this.moveTo(x + r, y);
+      this.arcTo(x + w, y, x + w, y + h, r);
+      this.arcTo(x + w, y + h, x, y + h, r);
+      this.arcTo(x, y + h, x, y, r);
+      this.arcTo(x, y, x + w, y, r);
+      this.closePath();
+      return this;
+    };
+  }
+
+  // ============ 启动 ============
+  window.addEventListener("resize", resize);
+  resize();
+  buildGrid(grid1, 1); buildGrid(grid2, 2); updateNames();
+  resetGame();
+  // 供无头测试校验节奏平衡（对游戏本身无影响）
+  window.__spikeTuning = TUNE;
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

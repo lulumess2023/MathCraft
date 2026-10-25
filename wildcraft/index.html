@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WILDCRAFT · 天空岛荒野求生</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0d14;
+  font-family: "Microsoft YaHei", "Segoe UI", sans-serif; color: #e8eef7; user-select: none; }
+
+/* ---------- 游戏画面层 ---------- */
+#frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: none; }
+
+/* ---------- 模式切换悬浮条 ---------- */
+#modebar {
+  position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 50; display: none; gap: 6px; align-items: center;
+  background: rgba(10, 14, 22, 0.72); border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 999px; padding: 6px 10px; backdrop-filter: blur(8px);
+}
+#modebar button {
+  background: rgba(255,255,255,0.08); color: #e8eef7; border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px; padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: all .15s;
+}
+#modebar button:hover { background: rgba(255,255,255,0.18); }
+#modebar button.on { background: #4ecca3; color: #08302a; border-color: #4ecca3; }
+#modebar .sep { width: 1px; height: 16px; background: rgba(255,255,255,0.2); }
+
+/* ---------- 标题选择页 ---------- */
+#menu {
+  position: absolute; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(90% 70% at 50% 20%, rgba(46,84,120,0.55), transparent 70%),
+    linear-gradient(180deg, #101826 0%, #0a0d14 100%);
+}
+#menu.hidden { display: none; }
+.panel { width: 640px; max-width: 94vw; text-align: center; }
+.panel h1 {
+  font-size: 56px; letter-spacing: 10px; font-weight: 900;
+  background: linear-gradient(90deg, #7ee8c0, #6ec6ff, #b78cff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 6px 30px rgba(110,198,255,0.25);
+}
+.panel h2 { font-size: 13px; letter-spacing: 6px; opacity: 0.55; margin: 6px 0 26px; font-weight: 400; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card {
+  position: relative; text-align: left; cursor: pointer;
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 16px; padding: 18px 20px; transition: all .18s; overflow: hidden;
+}
+.card:hover { transform: translateY(-4px); border-color: #4ecca3; background: rgba(78,204,163,0.10); }
+.card .ico { font-size: 40px; margin-bottom: 8px; }
+.card h3 { font-size: 20px; margin-bottom: 6px; }
+.card p { font-size: 12px; line-height: 1.7; opacity: 0.7; }
+.card .tag {
+  position: absolute; top: 14px; right: 14px; font-size: 10px; letter-spacing: 2px;
+  background: rgba(255,255,255,0.12); border-radius: 999px; padding: 3px 10px; opacity: 0.8;
+}
+.card.mine .tag { background: rgba(255,212,121,0.25); }
+.card.top .tag { background: rgba(110,198,255,0.25); }
+.hint { margin-top: 22px; font-size: 12px; opacity: 0.5; line-height: 1.8; }
+.hint kbd {
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 11px;
+}
+</style>
+</head>
+<body>
+  <div id="modebar">
+    <button id="mb-top">🏝️ 俯视求生</button>
+    <button id="mb-mine">⛏️ 挖矿建造</button>
+    <span class="sep"></span>
+    <button id="mb-menu">🏠 主菜单</button>
+  </div>
+
+  <div id="menu">
+    <div class="panel">
+      <h1>WILDCRAFT</h1>
+      <h2>天空岛 · 荒野求生 · 二合一</h2>
+      <div class="cards">
+        <div class="card top" id="card-top">
+          <span class="tag">TOP-DOWN</span>
+          <div class="ico">🏝️</div>
+          <h3>俯视求生</h3>
+          <p>双人同屏开放世界：采集、合成、建家、打怪、迷宫机关、可收服野怪、载具与异空间。</p>
+        </div>
+        <div class="card mine" id="card-mine">
+          <span class="tag">SIDE / 3D-VIEW</span>
+          <div class="ico">⛏️</div>
+          <h3>挖矿建造</h3>
+          <p>2D 方块世界：挖矿放置、背包合成、枪械射击、双人同屏、夜晚怪潮、四种视角切换。</p>
+        </div>
+      </div>
+      <div class="hint">
+        两个世界同时在线：顶部悬浮条随时切换，进度互不丢失<br>
+        俯视：<kbd>WASD</kbd>+<kbd>方向键</kbd> 双人 · 挖矿：<kbd>WASD</kbd> + 鼠标 · <kbd>P</kbd> 双人
+      </div>
+    </div>
+  </div>
+
+<script>
+'use strict';
+const menu = document.getElementById('menu');
+const bar = document.getElementById('modebar');
+const btnTop = document.getElementById('mb-top');
+const btnMine = document.getElementById('mb-mine');
+const btnMenu = document.getElementById('mb-menu');
+let mode = null;
+const frames = {};   // 两个世界各自一个 iframe，切换只换显示不重载（会话保留）
+
+function getFrame(m) {
+  if (frames[m]) return frames[m];
+  const f = document.createElement('iframe');
+  f.id = 'frame-' + m;
+  f.title = 'wildcraft ' + m;
+  f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;display:none;';
+  f.src = (m === 'top') ? 'topdown.html' : 'mine/index.html';
+  document.body.appendChild(f);
+  frames[m] = f;
+  return f;
+}
+
+function setBar() {
+  btnTop.classList.toggle('on', mode === 'top');
+  btnMine.classList.toggle('on', mode === 'mine');
+}
+
+function enter(m) {
+  mode = m;
+  menu.classList.add('hidden');
+  for (const k in frames) frames[k].style.display = (k === m) ? 'block' : 'none';
+  getFrame(m).style.display = 'block';
+  bar.style.display = 'flex';
+  setBar();
+}
+
+function backToMenu() {
+  mode = null;
+  for (const k in frames) frames[k].style.display = 'none';
+  bar.style.display = 'none';
+  menu.classList.remove('hidden');
+}
+
+document.getElementById('card-top').addEventListener('click', () => enter('top'));
+document.getElementById('card-mine').addEventListener('click', () => enter('mine'));
+btnTop.addEventListener('click', () => enter('top'));
+btnMine.addEventListener('click', () => enter('mine'));
+btnMenu.addEventListener('click', backToMenu);
+
+// URL hash 直达：#top / #mine
+const h = location.hash.slice(1);
+if (h === 'top' || h === 'mine') enter(h);
+</script>
+</body>
+</html>
