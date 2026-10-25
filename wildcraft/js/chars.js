@@ -1,62 +1,62 @@
-/* ---------- 角色库：拳皇式选人 ----------
-   CHARS 是选人界面上的全部角色。每个角色：
+/* ---------- 角色库：街机式选人 ----------
+   CHARS 是选人界面上的全部角色（全部为原创角色，头像用 AI 生成的 img/char-*.png）：
    - kit：身体配色（hair/hair2/band/suit/suit2/trim/skin/symbol）
-   - head：头型（naruto 尖刺发 / sasuke 后掠发 / ironman 面甲 / captain 头盔 / spider 面具 / ultra 银色头 / goku 大尖刺 / pika 长耳朵）
+   - head：头型绘制（内部代号，见 drawHeroSprite）
    - eyes：眼睛风格（normal / sharingan / visor / maskwhite / glow / round）
    - stats：速度 / 血量 / 攻击倍率 / 体力（都从基础值 168 / 30 / 1.0 / 20 小幅偏离）
    drawHeroSprite 是玩家和选人头像共用的整套身体绘制。 */
 
 var CHARS = [
-  { id: 'naruto', name: '鸣人', src: '火影忍者', tag: '均衡', icon: '🌀',
+  { id: 'naruto', name: '疾风', src: '荒野远征队', avatar: 'img/char-gale.png', tag: '均衡', icon: '🌀',
     head: 'naruto', eyes: 'normal', ribbon: true,
     kit: { hair: '#F7D154', hair2: '#DDA32A', band: '#1D4ED8', suit: '#F97316', suit2: '#EA580C',
            trim: '#1E3A8A', skin: '#F3C9A0', symbol: '#1E3A8A' },
     stats: { speed: 168, hp: 30, dmg: 1.0 },
     perk: '均衡型，样样都在行' },
 
-  { id: 'sasuke', name: '佐助', src: '火影忍者', tag: '敏捷', icon: '⚡',
+  { id: 'sasuke', name: '影刃', src: '荒野远征队', avatar: 'img/char-kage.png', tag: '敏捷', icon: '⚡',
     head: 'sasuke', eyes: 'sharingan', ribbon: true,
     kit: { hair: '#23232F', hair2: '#15151E', band: '#2E5480', suit: '#DDE4EE', suit2: '#B9C4D6',
            trim: '#2B3A55', skin: '#F4D8C0', symbol: '#2B3A55' },
     stats: { speed: 182, hp: 29, dmg: 0.95 },
     perk: '脚程快人一步，身板薄一点' },
 
-  { id: 'goku', name: '孙悟空', src: '龙珠', tag: '力量', icon: '👊',
+  { id: 'goku', name: '武圣', src: '荒野远征队', avatar: 'img/char-wuxing.png', tag: '力量', icon: '👊',
     head: 'goku', eyes: 'normal',
     kit: { hair: '#1B1B22', hair2: '#2E2E3A', band: '#1D4ED8', suit: '#F97316', suit2: '#EA580C',
            trim: '#1D4ED8', skin: '#F4D0AA', symbol: '#1D4ED8' },
     stats: { speed: 170, hp: 32, dmg: 1.15 },
     perk: '武术底子：打人格外疼' },
 
-  { id: 'ironman', name: '钢铁侠', src: '漫威', tag: '重甲', icon: '🤖',
+  { id: 'ironman', name: '铁卫', src: '荒野远征队', avatar: 'img/char-ironclad.png', tag: '重甲', icon: '🤖',
     head: 'ironman', eyes: 'visor', emblem: 'reactor',
     kit: { hair: '#B91C1C', hair2: '#7F1D1D', band: '#7F1D1D', suit: '#C0272D', suit2: '#8F1A1F',
            trim: '#EAB308', skin: '#C0272D', symbol: '#EAB308' },
     stats: { speed: 160, hp: 36, dmg: 1.05 },
-    perk: '战甲护体：血最厚，跑得慢' },
+    perk: '机甲护体：血最厚，跑得慢' },
 
-  { id: 'captain', name: '美国队长', src: '漫威', tag: '坚毅', icon: '⭐',
+  { id: 'captain', name: '盾卫', src: '荒野远征队', avatar: 'img/char-vanguard.png', tag: '坚毅', icon: '⭐',
     head: 'captain', eyes: 'normal', emblem: 'star',
     kit: { hair: '#8B6A3B', hair2: '#6E5228', band: '#1E40AF', suit: '#2563EB', suit2: '#1D4ED8',
            trim: '#EF4444', skin: '#F4D8C0', symbol: '#F8FAFC' },
     stats: { speed: 166, hp: 34, dmg: 1.05 },
-    perk: '超级士兵血清：结实又稳' },
+    perk: '老练士兵：结实又稳' },
 
-  { id: 'spider', name: '蜘蛛侠', src: '漫威', tag: '敏捷', icon: '🕷️',
+  { id: 'spider', name: '飞檐', src: '荒野远征队', avatar: 'img/char-acro.png', tag: '敏捷', icon: '🎭',
     head: 'spider', eyes: 'maskwhite',
     kit: { hair: '#C0272D', hair2: '#8F1A1F', band: '#1D4ED8', suit: '#C0272D', suit2: '#8F1A1F',
            trim: '#1D4ED8', skin: '#C0272D', symbol: '#1D4ED8' },
     stats: { speed: 192, hp: 29, dmg: 0.95 },
     perk: '全场最快，就是不经打' },
 
-  { id: 'ultra', name: '奥特曼', src: '特摄', tag: '光之力', icon: '🌟',
+  { id: 'ultra', name: '巨光', src: '荒野远征队', avatar: 'img/char-titan.png', tag: '光之力', icon: '🌟',
     head: 'ultra', eyes: 'glow', emblem: 'timer',
     kit: { hair: '#CBD5E1', hair2: '#94A3B8', band: '#EF4444', suit: '#D7DEE8', suit2: '#AAB6C6',
            trim: '#EF4444', skin: '#D7DEE8', symbol: '#EF4444' },
     stats: { speed: 160, hp: 32, dmg: 1.2 },
-    perk: '光之巨人：一拳一个，跑得慢' },
+    perk: '银色巨人：一拳一个，跑得慢' },
 
-  { id: 'pika', name: '皮卡丘', src: '宝可梦', tag: '灵巧', icon: '⚡',
+  { id: 'pika', name: '雷鼠', src: '荒野远征队', avatar: 'img/char-volt.png', tag: '灵巧', icon: '⚡',
     head: 'pika', eyes: 'round',
     kit: { hair: '#FACC15', hair2: '#EAB308', band: '#B45309', suit: '#FACC15', suit2: '#EAB308',
            trim: '#B45309', skin: '#FACC15', symbol: '#B45309' },
@@ -117,7 +117,7 @@ function drawHeroSprite(ctx, o) {
     ctx.globalAlpha = 1;
   }
   /* 胸口的徽记 */
-  if (ch.emblem === 'reactor') {                    // 钢铁侠：方舟反应堆
+  if (ch.emblem === 'reactor') {                    // 铁卫：方舟反应堆
     var glow = 0.5 + 0.5 * Math.sin((o.time || 0) * 5);
     ctx.fillStyle = 'rgba(125,211,252,' + (0.35 + glow * 0.3) + ')';
     ctx.beginPath(); ctx.arc(x, y - 2 * s, 4.6 * s, 0, 6.283); ctx.fill();
@@ -125,7 +125,7 @@ function drawHeroSprite(ctx, o) {
     ctx.beginPath(); ctx.arc(x, y - 2 * s, 2.4 * s, 0, 6.283); ctx.fill();
     ctx.strokeStyle = '#38BDF8'; ctx.lineWidth = 1.1 * s;
     ctx.beginPath(); ctx.arc(x, y - 2 * s, 2.4 * s, 0, 6.283); ctx.stroke();
-  } else if (ch.emblem === 'star') {                // 美国队长：白五角星
+  } else if (ch.emblem === 'star') {                // 盾卫：白五角星
     ctx.fillStyle = '#F8FAFC';
     ctx.beginPath();
     for (var st = 0; st < 5; st++) {
@@ -135,7 +135,7 @@ function drawHeroSprite(ctx, o) {
       ctx.lineTo(x + Math.cos(a2) * 2 * s, y - 2 * s + Math.sin(a2) * 2 * s);
     }
     ctx.closePath(); ctx.fill();
-  } else if (ch.emblem === 'timer') {               // 奥特曼：彩色计时器
+  } else if (ch.emblem === 'timer') {               // 巨光：彩色计时器
     var blink = (Math.floor((o.time || 0) * 2) % 2 === 0);
     ctx.fillStyle = blink ? '#38BDF8' : '#F8FAFC';
     ctx.beginPath(); ctx.arc(x, y - 2 * s, 2.6 * s, 0, 6.283); ctx.fill();
@@ -155,7 +155,7 @@ function drawHeroSprite(ctx, o) {
   ctx.beginPath(); ctx.arc(x, y - 12 * s, 7.4 * s, 0, 6.283); ctx.fill();
 
   if (head === 'sasuke') {
-    /* 佐助的高立领：两片深蓝立领从肩上竖起来 */
+    /* 影刃的高立领：两片深蓝立领从肩上竖起来 */
     ctx.fillStyle = kit.trim;
     ctx.beginPath();
     ctx.moveTo(x - 7.6 * s, y - 5.5 * s);
@@ -193,7 +193,7 @@ function drawHeroSprite(ctx, o) {
     ctx.lineTo(x + 11 * s, y - 20 * s); ctx.lineTo(x + 8.4 * s, y - 11 * s);
     ctx.closePath(); ctx.fill();
   } else if (head === 'ironman') {
-    /* 钢铁侠：红头盔 + 金色面甲 + 眼缝发光 */
+    /* 铁卫：红头盔 + 金色面甲 + 眼缝发光 */
     ctx.fillStyle = kit.hair2;
     ctx.beginPath(); ctx.arc(x, y - 13 * s, 7.8 * s, Math.PI, 0); ctx.closePath(); ctx.fill();
     ctx.fillStyle = kit.trim;                       // 金色面甲（下半张脸）
@@ -206,7 +206,7 @@ function drawHeroSprite(ctx, o) {
     ctx.fillStyle = 'rgba(125,211,252,.35)';        // 面甲反光
     ctx.fillRect(x - 6 * s, y - 11 * s, 5 * s, 1.2 * s);
   } else if (head === 'captain') {
-    /* 美国队长：蓝色头盔 + 额头 A 字 + 两侧小翅膀 */
+    /* 盾卫：蓝色头盔 + 额头 A 字 + 两侧小翅膀 */
     ctx.fillStyle = kit.band;
     ctx.beginPath(); ctx.arc(x, y - 12.8 * s, 7.8 * s, Math.PI * 0.95, Math.PI * 0.05); ctx.closePath(); ctx.fill();
     ctx.fillRect(x - 7.6 * s, y - 13.2 * s, 15.2 * s, 2.6 * s);
@@ -223,7 +223,7 @@ function drawHeroSprite(ctx, o) {
     ctx.moveTo(x + 7.8 * s, y - 13 * s); ctx.lineTo(x + 11 * s, y - 14.4 * s); ctx.lineTo(x + 7.8 * s, y - 11.6 * s);
     ctx.closePath(); ctx.fill();
   } else if (head === 'spider') {
-    /* 蜘蛛侠：红头套 + 大白眼睛 + 两根网线 */
+    /* 飞檐：红头套 + 大白眼睛 + 两根网线 */
     ctx.fillStyle = kit.skin;
     ctx.beginPath(); ctx.arc(x, y - 12 * s, 7.5 * s, 0, 6.283); ctx.fill();
     ctx.strokeStyle = 'rgba(29,26,26,.55)'; ctx.lineWidth = 0.7 * s;
@@ -254,7 +254,7 @@ function drawHeroSprite(ctx, o) {
     ctx.quadraticCurveTo(x + 5.2 * s, y - 8.8 * s, x + 1.6 * s, y - 10 * s);
     ctx.stroke();
   } else if (head === 'ultra') {
-    /* 奥特曼：银色头 + 红色冠羽 + 发光的椭圆眼 */
+    /* 巨光：银色头 + 红色冠羽 + 发光的椭圆眼 */
     ctx.fillStyle = kit.skin;
     ctx.beginPath(); ctx.arc(x, y - 12 * s, 7.6 * s, 0, 6.283); ctx.fill();
     ctx.fillStyle = kit.trim;                       // 从额头劈下来的红色冠羽
@@ -269,7 +269,7 @@ function drawHeroSprite(ctx, o) {
     ctx.beginPath(); ctx.ellipse(x - 3.4 * s, y - 11.6 * s, 1.7 * s, 2.4 * s, -0.25, 0, 6.283); ctx.fill();
     ctx.beginPath(); ctx.ellipse(x + 3.4 * s, y - 11.6 * s, 1.7 * s, 2.4 * s, 0.25, 0, 6.283); ctx.fill();
   } else if (head === 'pika') {
-    /* 皮卡丘：黄色圆头 + 两只尖耳朵 + 红脸蛋 */
+    /* 雷鼠：黄色圆头 + 两只尖耳朵 + 红脸蛋 */
     ctx.fillStyle = kit.hair2;                      // 先画耳朵（黑尖黄身）
     ctx.beginPath();
     ctx.moveTo(x - 6.5 * s, y - 17 * s); ctx.lineTo(x - 9.5 * s, y - 26.5 * s); ctx.lineTo(x - 3 * s, y - 19 * s);
@@ -288,7 +288,7 @@ function drawHeroSprite(ctx, o) {
     ctx.beginPath(); ctx.arc(x - 5.4 * s, y - 9.8 * s, 1.9 * s, 0, 6.283); ctx.fill();
     ctx.beginPath(); ctx.arc(x + 5.4 * s, y - 9.8 * s, 1.9 * s, 0, 6.283); ctx.fill();
   } else {
-    /* 鸣人：尖刺头发（默认头型） */
+    /* 疾风：尖刺头发（默认头型） */
     ctx.fillStyle = kit.hair;
     ctx.beginPath();
     ctx.moveTo(x - 8 * s, y - 12 * s);
@@ -301,7 +301,7 @@ function drawHeroSprite(ctx, o) {
   }
 
   if (head === 'naruto' || head === 'sasuke') {
-    /* 护额：布带 + 金属牌 + 村子的标志（鸣人螺旋 / 佐助叶子） */
+    /* 护额：布带 + 金属牌 + 村子的标志（疾风螺旋 / 影刃叶子） */
     ctx.fillStyle = kit.band;
     ctx.fillRect(x - 8.5 * s, y - 16.6 * s, 17 * s, 4.8 * s);
     ctx.fillStyle = '#CBD5E1';
@@ -357,14 +357,14 @@ function drawHeroSprite(ctx, o) {
     ctx.fillRect(x - 3.1 * s + ex2, y - 9.9 * s + ey2, 0.8 * s, 1.4 * s);
     ctx.fillRect(x + 2.7 * s + ex2, y - 9.9 * s + ey2, 0.8 * s, 1.4 * s);
   } else if (ch.eyes === 'round') {
-    ctx.fillStyle = '#1F2937';                      // 皮卡丘：又黑又圆
+    ctx.fillStyle = '#1F2937';                      // 雷鼠：又黑又圆
     ctx.beginPath(); ctx.arc(x - 3.2 * s + ex2, y - 11 * s + ey2, 1.9 * s, 0, 6.283); ctx.fill();
     ctx.beginPath(); ctx.arc(x + 3.2 * s + ex2, y - 11 * s + ey2, 1.9 * s, 0, 6.283); ctx.fill();
     ctx.fillStyle = '#F8FAFC';
     ctx.beginPath(); ctx.arc(x - 2.6 * s + ex2, y - 11.6 * s + ey2, 0.7 * s, 0, 6.283); ctx.fill();
     ctx.beginPath(); ctx.arc(x + 3.8 * s + ex2, y - 11.6 * s + ey2, 0.7 * s, 0, 6.283); ctx.fill();
   }
-  /* visor（钢铁侠）/ maskwhite（蜘蛛侠）/ glow（奥特曼）的眼睛已经画在头盔里了 */
+  /* visor（铁卫）/ maskwhite（飞檐）/ glow（巨光）的眼睛已经画在头盔里了 */
   else if (ch.eyes === 'normal') {
     ctx.fillStyle = '#22303F';
     ctx.fillRect(x - 4.2 * s + ex2, y - 10.8 * s + ey2, 2.6 * s, 3.4 * s);

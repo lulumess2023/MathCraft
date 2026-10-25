@@ -48,7 +48,7 @@ global.localStorage = { getItem: () => null, setItem() {} };
 
 // ---------- 加载游戏 ----------
 // eval 里的 class/const 不会泄漏到外层，显式导出需要的
-const src = fs.readFileSync(path.join(__dirname, 'game.js'), 'utf8');
+const src = fs.readFileSync(path.join(__dirname, 'mine.js'), 'utf8');
 eval(src + '\n;global.__G = { Game, Mob, Arrow, BLOCKS, World, skyAt, HOTBAR_PAGES };');
 window.game = new global.__G.Game();
 const game = window.game;

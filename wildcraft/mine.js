@@ -305,6 +305,7 @@ class Player {
         this.x = x;
         this.y = y;
         this.idx = idx;   // 0 = 一号（蓝绿）, 1 = 二号（紫色）
+        this.tint = null; // 统一菜单选人后的角色主色（覆盖默认身体色）
         this.vx = 0;
         this.vy = 0;
         this.width = 0.6;
@@ -413,10 +414,10 @@ class Player {
         const w = this.width * scale;
         const h = this.height * scale;
         
-        // 双人配色：P1 蓝绿 / P2 紫色
+        // 双人配色：P1 蓝绿 / P2 紫色（统一菜单选人后用角色主色）
         const C = this.idx === 1
-            ? { body: '#9b59b6', skin: '#f39c12', dark: '#5b2c6f' }
-            : { body: '#2a9d8f', skin: '#e9c46a', dark: '#264653' };
+            ? { body: this.tint2 || '#9b59b6', skin: '#f39c12', dark: '#5b2c6f' }
+            : { body: this.tint || '#2a9d8f', skin: '#e9c46a', dark: '#264653' };
         
         // 无敌闪烁
         if (this.invuln > 0) ctx.globalAlpha = 0.55;
@@ -1286,7 +1287,7 @@ class Game {
     }
     
     start() {
-        // URL hash 快捷入口（截图与快速验证）：#shot / #menu / #fp / #top / #under / #day / #2p 可组合
+        // URL hash 快捷入口（截图与快速验证）：#shot / #menu / #fp / #top / #under / #day / #2p / #char-xxx 可组合
         if (typeof location !== 'undefined') {
             const h = location.hash.slice(1);
             if (h) {
@@ -1303,6 +1304,20 @@ class Game {
                 if (['fp', 'top', 'under'].includes(toks[0])) this.view = toks[0];
                 if (toks.includes('day')) this.dayTime = 0.5;
                 if (toks.includes('2p') && !this.player2) this.toggleP2();
+                // 统一菜单选人换肤：#char-naruto（主色与俯视角色 kit 对应）
+                const CHAR_TINTS = {
+                    naruto: '#F97316', sasuke: '#DDE4EE', goku: '#F97316', ironman: '#C0272D',
+                    captain: '#2563EB', spider: '#C0272D', ultra: '#D7DEE8', pika: '#FACC15'
+                };
+                const charTok = toks.find(t => t === 'naruto' || t === 'sasuke' || t === 'goku' ||
+                    t === 'ironman' || t === 'captain' || t === 'spider' || t === 'ultra' || t === 'pika');
+                if (charTok && CHAR_TINTS[charTok]) {
+                    this.player.tint = CHAR_TINTS[charTok];
+                    if (this.player2) {
+                        const others = Object.keys(CHAR_TINTS).filter(k => k !== charTok);
+                        this.player2.tint2 = CHAR_TINTS[others[(Math.random() * others.length) | 0]];
+                    }
+                }
             }
         }
         this.lastTime = performance.now();
@@ -2018,15 +2033,15 @@ class Game {
         ctx.fillText(`[${names[this.view]}]  按 V 切换视角`, this.width / 2, 24);
         ctx.textAlign = 'left';
         
-        // 夜晚警示
+        // 守城夜袭警示（castle-squad 融合：夜里怪潮攻家，守住到天亮）
         if (this.nightBanner > 0) {
             ctx.globalAlpha = Math.min(1, this.nightBanner);
             ctx.font = '800 30px "Microsoft YaHei",sans-serif';
             ctx.textAlign = 'center';
             ctx.fillStyle = 'rgba(0,0,0,0.6)';
-            ctx.fillText('夜晚来临，怪物出没！', this.width / 2 + 2, this.height * 0.3 + 2);
+            ctx.fillText('守城夜袭 · 第 ' + (this.dayCount + 1) + ' 夜：怪物潮来袭，守住到天亮！', this.width / 2 + 2, this.height * 0.3 + 2);
             ctx.fillStyle = '#ff8a8a';
-            ctx.fillText('夜晚来临，怪物出没！', this.width / 2, this.height * 0.3);
+            ctx.fillText('守城夜袭 · 第 ' + (this.dayCount + 1) + ' 夜：怪物潮来袭，守住到天亮！', this.width / 2, this.height * 0.3);
             ctx.globalAlpha = 1;
             ctx.textAlign = 'left';
         }

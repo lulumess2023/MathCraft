@@ -5,7 +5,7 @@ function Player(cfg) {
   this.ctl = cfg.ctl;
   this.color = cfg.color;
   this.accent = cfg.accent;
-  /* 角色：拳皇式选人。没给 charId 时按老默认（P1 鸣人 / P2 佐助），老存档也走这里 */
+  /* 角色：街机式选人。没给 charId 时按老默认（P1 疾风 / P2 影刃），老存档也走这里 */
   this.charId = cfg.charId || (cfg.id === 0 ? 'naruto' : 'sasuke');
   this.char = charById(this.charId) || CHARS[cfg.id === 0 ? 0 : 1];
   this.x = 0; this.y = 0;
@@ -17,7 +17,7 @@ function Player(cfg) {
   this.inv = makeInv(20);
   this.sel = 0;
   this.wlv = {};                          // 武器等级：{ 石剑: 2 } 重复捡到就升级
-  this.pets = [];                         // 收服来的小精灵 / 植物（按放生键派出来当帮手）
+  this.pets = [];                         // 收服来的小野灵 / 植物（按放生键派出来当帮手）
   this.petCd = 0;                         // 放生冷却
   this.pushCd = 0;                        // 推箱冷却（益智神殿里用）
   this.slow = 0;                          // 被霸王龙吼过之后的减速
@@ -347,13 +347,13 @@ Player.prototype.dropOne = function () {
   return true;
 };
 
-/* ---------- 收服来的小精灵 / 植物 ---------- */
+/* ---------- 收服来的小野灵 / 植物 ---------- */
 /* 按放生键：从宠物栏里派一只出来当帮手（倒下的会回到栏里，歇一歇还能再派） */
 Player.prototype.releasePet = function () {
   if (typeof Realm !== 'undefined' && Realm.active) { Game.say('异空间里不放宠物'); return false; }
   if (this.petCd > 0) return false;
   if (!this.pets || !this.pets.length) {
-    Game.say(this.name + ' 还没有收服过小精灵 —— 拿收服球（按 E 扔）去抓一只');
+    Game.say(this.name + ' 还没有收服过小野灵 —— 拿驯灵环（按 E 扔）去抓一只');
     return false;
   }
   var idx = -1;
@@ -398,7 +398,7 @@ Player.prototype.petFallen = function (idx) {
 Player.prototype.doPlace = function () {
   var held = Inv.held(this);
   if (!held) return;
-  if (held.def.capture) {                       // 收服球：朝面对的方向扔出去
+  if (held.def.capture) {                       // 驯灵环：朝面对的方向扔出去
     if (Game.throwBall(this)) Inv.remove(this.inv, held.id, 1);
     return;
   }
@@ -533,7 +533,7 @@ Player.prototype.draw = function (ctx) {
     ctx.fillStyle = 'rgba(168,85,247,' + (0.2 + pulse * 0.2) + ')';
     ctx.beginPath(); ctx.arc(x, y, 22, 0, 6.283); ctx.fill();
   }
-  /* 角色形象（鸣人/佐助/孙悟空/钢铁侠/美国队长/蜘蛛侠/奥特曼/皮卡丘，见 chars.js） */
+  /* 角色形象（疾风/影刃/武圣/铁卫/盾卫/飞檐/巨光/雷鼠，见 chars.js） */
   var s = scale;
   var bob2 = this.walk > 0 ? Math.sin(this.walk * 11) * 2.2 : 0;
   drawHeroSprite(ctx, {
@@ -663,29 +663,29 @@ function Mob(type, x, y) {
     this.atkGap = 1.6; this.knock = 0.04; this.r = 26; this.label = '霸王龙';
     this.boss = true; this.dino = true; this.roarCd = 4; this.chargeCd = 3; this.charge = 0;
   } else if (type === 'fairy') {
-    /* 小精灵：飘在空中的小东西。不主动打人，你打了它才还手 */
+    /* 小野灵：飘在空中的小东西。不主动打人，你打了它才还手 */
     this.hp = 34; this.maxhp = 34; this.speed = 82; this.dmg = 5; this.color = '#A78BFA';
-    this.atkGap = 1.0; this.knock = 0.9; this.r = 10; this.label = '小精灵';
+    this.atkGap = 1.0; this.knock = 0.9; this.r = 10; this.label = '小野灵';
     this.ranged = true; this.range = 210; this.rdmg = 5; this.bspeed = 300;
     this.bcolor = '#C4B5FD'; this.bsize = 5; this.gap = 1.8; this.shootCd = 0;
     this.catchable = true; this.floats = true; this.passive = true; this.aggro = false;
   } else if (type === 'peashooter') {
-    /* 豌豆射手：扎在土里不动，被惹毛了才吐豌豆。收服之后跟着你走 */
+    /* 豆荚炮手：扎在土里不动，被惹毛了才吐豌豆。收服之后跟着你走 */
     this.hp = 46; this.maxhp = 46; this.speed = 0; this.dmg = 8; this.color = '#4ADE80';
-    this.atkGap = 1.3; this.knock = 0.2; this.r = 11; this.label = '豌豆射手';
+    this.atkGap = 1.3; this.knock = 0.2; this.r = 11; this.label = '豆荚炮手';
     this.plant = true; this.ranged = true; this.range = 300; this.rdmg = 6; this.bspeed = 340;
     this.bcolor = '#86EFAC'; this.bsize = 5; this.gap = 1.6; this.shootCd = 0;
     this.catchable = true; this.passive = true; this.aggro = false;
   } else if (type === 'sunflower') {
-    /* 向日葵：完全不会打架，被收服之后会定期给主人回血回体力 */
+    /* 日光花：完全不会打架，被收服之后会定期给主人回血回体力 */
     this.hp = 30; this.maxhp = 30; this.speed = 0; this.dmg = 0; this.color = '#FBBF24';
-    this.atkGap = 9; this.knock = 0.5; this.r = 11; this.label = '向日葵';
+    this.atkGap = 9; this.knock = 0.5; this.r = 11; this.label = '日光花';
     this.plant = true; this.catchable = true; this.healer = true; this.healCd = 1.5;
     this.passive = true; this.aggro = false;
   } else if (type === 'wallnut') {
-    /* 坚果墙：血超厚、不会走，被收服之后变成会走路的肉盾 */
+    /* 岩壳仔：血超厚、不会走，被收服之后变成会走路的肉盾 */
     this.hp = 240; this.maxhp = 240; this.speed = 0; this.dmg = 3; this.color = '#B45309';
-    this.atkGap = 1.6; this.knock = 0.05; this.r = 12; this.label = '坚果墙';
+    this.atkGap = 1.6; this.knock = 0.05; this.r = 12; this.label = '岩壳仔';
     this.plant = true; this.catchable = true; this.tank = true;
     this.passive = true; this.aggro = false;
   } else {
@@ -750,7 +750,7 @@ Mob.prototype.findFoe = function (range, wantAlly) {
     var m = Game.mobs[i];
     if (m === this || !m.alive) continue;
     if (wantAlly ? !m.ally : m.ally) continue;
-    if (m.passive && !m.aggro) continue;      // 没被惹毛的小精灵/植物，野怪也懒得理它
+    if (m.passive && !m.aggro) continue;      // 没被惹毛的小野灵/植物，野怪也懒得理它
     var d = dist(m.x, m.y, this.x, this.y);
     if (d < bd) { bd = d; best = m; }
   }
@@ -770,7 +770,7 @@ Mob.prototype.nearestPlayer = function () {
 
 Mob.prototype.update = function (dt) {
   if (!this.alive) return;
-  // 白天灼烧（被附魔策反的自己人不怕太阳；小精灵和植物是白天出来活动的）
+  // 白天灼烧（被附魔策反的自己人不怕太阳；小野灵和植物是白天出来活动的）
   if (!this.ally && !this.plant && !this.catchable && !this.realm && (!Game.isNight() || Maze.active)) {
     this.hp -= dt * 5;
     this.flash = 0.2;
@@ -783,7 +783,7 @@ Mob.prototype.update = function (dt) {
   else this.updateEnemy(dt, sp);
 };
 
-/* 没被惹毛的小精灵/植物：就在原地晃悠，不主动找人打架 */
+/* 没被惹毛的小野灵/植物：就在原地晃悠，不主动找人打架 */
 Mob.prototype.idleWander = function (dt, sp) {
   if (this.plant || !this.floats) return;             // 植物扎在土里，动不了
   this.patrolT -= dt;
@@ -798,7 +798,7 @@ Mob.prototype.idleWander = function (dt, sp) {
 
 /* 敌方：先被附魔土豆勾过去，其次打友军僵尸，最后才是玩家 */
 Mob.prototype.updateEnemy = function (dt, sp) {
-  /* 小精灵和植物：你不动它，它不动你 */
+  /* 小野灵和植物：你不动它，它不动你 */
   if (this.passive && !this.aggro) { this.idleWander(dt, sp); return; }
   var bait = Game.baitNear(this.x, this.y);
   if (bait) {
@@ -863,7 +863,7 @@ Mob.prototype.updateEnemy = function (dt, sp) {
     }
     if (this.roar > 0) this.roar -= dt;
   }
-  /* 远程野怪（小精灵 / 豌豆射手）：保持距离射击 */
+  /* 远程野怪（小野灵 / 豆荚炮手）：保持距离射击 */
   if (this.ranged) {
     this.shootCd -= dt;
     var rd = Math.hypot(tx - this.x, ty - this.y);
@@ -911,7 +911,7 @@ Mob.prototype.updateEnemy = function (dt, sp) {
 /* 友军：有敌人就冲上去打（机器人会远程点射），没敌人就在主人身边巡逻 */
 Mob.prototype.updateAlly = function (dt, sp) {
   var foe = this.findFoe(this.robot ? 520 : 460, false);
-  /* 向日葵：不打架，专心给主人回血回体力 */
+  /* 日光花：不打架，专心给主人回血回体力 */
   var host = (this.leader && this.leader.alive) ? this.leader : Game.players[0];
   if (this.healer && host) {
     this.healCd -= dt;
@@ -928,7 +928,7 @@ Mob.prototype.updateAlly = function (dt, sp) {
   }
   if (foe) {
     if (this.robot || this.ranged) {
-      /* 远程帮手（机器人 / 小精灵 / 豌豆射手）：保持距离点射 */
+      /* 远程帮手（机器人 / 小野灵 / 豆荚炮手）：保持距离点射 */
       this.shootCd -= dt;
       var gd = dist(this.x, this.y, foe.x, foe.y);
       var rg = this.range || 260;
@@ -1010,7 +1010,7 @@ Mob.prototype.hurt = function (dmg, sx, sy, src) {
       Game.drops.push({ x: this.x, y: this.y, id: 'kit', n: 4, life: 150 });
       Game.drops.push({ x: this.x, y: this.y, id: 'epotato', n: 3, life: 150 });
       Game.drops.push({ x: this.x, y: this.y, id: 'cball', n: 3, life: 150 });
-      Game.say('🦖 霸王龙被打倒了！！金子、药箱、附魔土豆、收服球撒了一地');
+      Game.say('🦖 霸王龙被打倒了！！金子、药箱、附魔土豆、驯灵环撒了一地');
       if (src) Game.grantDragonBall(src);
     } else if (this.ally) {
       Game.drops.push({ x: this.x, y: this.y, id: 'coal', n: 1, life: 30 });
@@ -1026,7 +1026,7 @@ Mob.prototype.hurt = function (dmg, sx, sy, src) {
       Game.drops.push({ x: this.x, y: this.y, id: 'kit', n: 3, life: 120 });
       Game.drops.push({ x: this.x, y: this.y, id: 'epotato', n: 3, life: 120 });
       Game.say('🔥 炎魔被打倒了！金子、药箱、附魔土豆撒了一地');
-      if (src && Math.random() < 0.7) Game.grantDragonBall(src);     // 打炎魔最容易出龙珠
+      if (src && Math.random() < 0.7) Game.grantDragonBall(src);     // 打炎魔最容易出星曜石
     } else if (this.boss) {
       Game.drops.push({ x: this.x, y: this.y, id: 'gold', n: 5, life: 60 });
       Game.drops.push({ x: this.x, y: this.y, id: 'kit', n: 2, life: 60 });
@@ -1049,7 +1049,7 @@ Mob.prototype.draw = function (ctx) {
   ctx.fillStyle = 'rgba(0,0,0,.28)';
   ctx.beginPath();
   ctx.ellipse(this.x, this.y + 10 * ssize, 10 * ssize, 4 * ssize, 0, 0, 6.283); ctx.fill();
-  /* 可以收服的小家伙：脚下画一圈虚线提示「这个能用收服球」；被惹毛了头顶冒怒气 */
+  /* 可以收服的小家伙：脚下画一圈虚线提示「这个能用驯灵环」；被惹毛了头顶冒怒气 */
   if (this.catchable && !this.ally) {
     if (this.aggro) {
       var ag = Math.sin(Game.time * 9) * 1.6;
@@ -1169,7 +1169,7 @@ Mob.prototype.draw = function (ctx) {
       ctx.fillStyle = '#EF4444'; ctx.fillRect(x - bw / 2, y - 40, bw * Math.max(0, this.hp / this.maxhp), bh);
     }
   } else if (this.type === 'fairy') {
-    /* 小精灵：飘在半空的小光球，两片薄翅膀，一闪一闪 */
+    /* 小野灵：飘在半空的小光球，两片薄翅膀，一闪一闪 */
     var fy = y - 7 + Math.sin(Game.time * 3 + this.x * 0.04) * 3;
     ctx.fillStyle = 'rgba(196,181,253,.22)';
     ctx.beginPath(); ctx.arc(x, fy, 17, 0, 6.283); ctx.fill();
@@ -1188,7 +1188,7 @@ Mob.prototype.draw = function (ctx) {
     var sa2 = Game.time * 3.4;
     ctx.beginPath(); ctx.arc(x + Math.cos(sa2) * 12, fy - 13 + Math.sin(sa2) * 2.5, 2.2, 0, 6.283); ctx.fill();
   } else if (this.type === 'peashooter') {
-    /* 豌豆射手：一根绿茎顶着炮管脑袋 */
+    /* 豆荚炮手：一根绿茎顶着炮管脑袋 */
     ctx.fillStyle = '#3F7A2E'; ctx.fillRect(x - 3, y - 4, 6, 14);        // 茎
     ctx.fillStyle = '#4E8B3A';                                            // 两片叶子
     ctx.beginPath(); ctx.ellipse(x - 8, y + 6, 6, 3.4, 0.3, 0, 6.283); ctx.fill();
@@ -1206,7 +1206,7 @@ Mob.prototype.draw = function (ctx) {
     ctx.fillRect(x - 5, y - 11, 3, 3.4);
     ctx.fillRect(x + 2, y - 11, 3, 3.4);
   } else if (this.type === 'sunflower') {
-    /* 向日葵：一张笑脸，头顶一圈花瓣 */
+    /* 日光花：一张笑脸，头顶一圈花瓣 */
     ctx.fillStyle = '#3F7A2E'; ctx.fillRect(x - 3, y - 2, 6, 14);
     ctx.fillStyle = '#4E8B3A';
     ctx.beginPath(); ctx.ellipse(x - 8, y + 8, 6, 3.2, 0.3, 0, 6.283); ctx.fill();
@@ -1234,7 +1234,7 @@ Mob.prototype.draw = function (ctx) {
     ctx.strokeStyle = '#1F2937'; ctx.lineWidth = 1.6;
     ctx.beginPath(); ctx.arc(x, y - 6, 4, 0.25, Math.PI - 0.25); ctx.stroke();
   } else if (this.type === 'wallnut') {
-    /* 坚果墙：一颗结结实实的大坚果，被打得越狠表情越难受 */
+    /* 岩壳仔：一颗结结实实的大坚果，被打得越狠表情越难受 */
     var hurt2 = 1 - Math.max(0, this.hp / this.maxhp);
     ctx.fillStyle = this.color;
     ctx.beginPath(); ctx.ellipse(x, y - 3, 13, 15, 0, 0, 6.283); ctx.fill();

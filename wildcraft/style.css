@@ -175,6 +175,7 @@ body.solo .setup-row.p2ctl-row { display:none; }
 .charcard.cur-p2 { border-color:#F472B6; box-shadow:0 0 12px rgba(244,114,182,.6); transform:translateY(-3px); }
 .charcard.taken { filter:grayscale(.85) brightness(.55); }
 .charcard canvas { display:block; margin:0 auto; image-rendering:auto; }
+.charcard img.cc-avatar { display:block; margin:0 auto; width:72px; height:72px; border-radius:10px; object-fit:cover; }
 .charcard .cc-name { font-size:13px; font-weight:bold; color:#E8F1FA; margin-top:2px; }
 .charcard .cc-src { font-size:10px; color:#8CA9C8; }
 .charcard .cc-badge {

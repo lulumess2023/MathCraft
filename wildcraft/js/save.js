@@ -129,7 +129,7 @@ var Save = {
         var it = sp.inv[s];
         if (it && ITEMS[it[0]]) p.inv[s] = { id: it[0], count: it[1] };
       }
-      /* 角色（拳皇式选人）：先换角色（会改 maxhp/maxfood），再还原血量 */
+      /* 角色（街机式选人）：先换角色（会改 maxhp/maxfood），再还原血量 */
       if (sp.charId && Game.applyChar) Game.applyChar(p, sp.charId);
       p.x = sp.x; p.y = sp.y;
       p.safeX = sp.sx || sp.x; p.safeY = sp.sy || sp.y;

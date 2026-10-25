@@ -28,50 +28,82 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0d14;
 #modebar button.on { background: #4ecca3; color: #08302a; border-color: #4ecca3; }
 #modebar .sep { width: 1px; height: 16px; background: rgba(255,255,255,0.2); }
 
-/* ---------- 标题选择页 ---------- */
+/* ---------- 统一开始菜单 ---------- */
 #menu {
-  position: absolute; inset: 0; z-index: 40;
+  position: absolute; inset: 0; z-index: 40; overflow-y: auto;
   display: flex; align-items: center; justify-content: center;
   background:
     radial-gradient(90% 70% at 50% 20%, rgba(46,84,120,0.55), transparent 70%),
     linear-gradient(180deg, #101826 0%, #0a0d14 100%);
 }
 #menu.hidden { display: none; }
-.panel { width: 640px; max-width: 94vw; text-align: center; }
+.panel { width: 720px; max-width: 94vw; text-align: center; padding: 28px 0; }
 .panel h1 {
-  font-size: 56px; letter-spacing: 10px; font-weight: 900;
+  font-size: 52px; letter-spacing: 10px; font-weight: 900;
   background: linear-gradient(90deg, #7ee8c0, #6ec6ff, #b78cff);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 6px 30px rgba(110,198,255,0.25);
 }
-.panel h2 { font-size: 13px; letter-spacing: 6px; opacity: 0.55; margin: 6px 0 26px; font-weight: 400; }
-.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.card {
-  position: relative; text-align: left; cursor: pointer;
+.panel h2 { font-size: 12px; letter-spacing: 5px; opacity: 0.55; margin: 4px 0 20px; font-weight: 400; }
+
+.steprow { margin-bottom: 18px; }
+.steplabel {
+  display: inline-block; font-size: 12px; letter-spacing: 3px; opacity: 0.65;
+  border: 1px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 3px 14px; margin-bottom: 10px;
+}
+.opts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.opt {
+  cursor: pointer; text-align: left; width: 250px;
   background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12);
-  border-radius: 16px; padding: 18px 20px; transition: all .18s; overflow: hidden;
+  border-radius: 14px; padding: 12px 16px; transition: all .16s;
 }
-.card:hover { transform: translateY(-4px); border-color: #4ecca3; background: rgba(78,204,163,0.10); }
-.card .ico { font-size: 40px; margin-bottom: 8px; }
-.card h3 { font-size: 20px; margin-bottom: 6px; }
-.card p { font-size: 12px; line-height: 1.7; opacity: 0.7; }
-.card .tag {
-  position: absolute; top: 14px; right: 14px; font-size: 10px; letter-spacing: 2px;
-  background: rgba(255,255,255,0.12); border-radius: 999px; padding: 3px 10px; opacity: 0.8;
+.opt .oi { font-size: 26px; }
+.opt h3 { font-size: 16px; margin: 4px 0 3px; }
+.opt p { font-size: 11px; line-height: 1.6; opacity: 0.68; }
+.opt:hover { border-color: rgba(78,204,163,0.6); background: rgba(78,204,163,0.08); }
+.opt.on { border-color: #4ecca3; background: rgba(78,204,163,0.13); box-shadow: 0 0 18px rgba(78,204,163,0.18); }
+
+/* 选角色 */
+#charstep { display: none; }
+.csgrid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 640px; margin: 0 auto; }
+.ccard {
+  cursor: pointer; width: 104px; text-align: center;
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 8px 6px 7px; transition: all .15s; position: relative;
 }
-.card.mine .tag { background: rgba(255,212,121,0.25); }
-.card.top .tag { background: rgba(110,198,255,0.25); }
-.hint { margin-top: 22px; font-size: 12px; opacity: 0.5; line-height: 1.8; }
+.ccard img { width: 72px; height: 72px; border-radius: 10px; display: block; margin: 0 auto; }
+.ccard .cn { font-size: 12px; font-weight: 700; margin-top: 4px; }
+.ccard .ct { font-size: 10px; opacity: 0.6; }
+.ccard:hover { border-color: rgba(110,198,255,0.7); transform: translateY(-2px); }
+.ccard.on { border-color: #4ecca3; background: rgba(78,204,163,0.12); }
+.ccard .who {
+  display: none; position: absolute; top: -9px; right: -6px; font-size: 10px; font-weight: 800;
+  background: #6ec6ff; color: #06202e; border-radius: 999px; padding: 1px 8px;
+}
+.ccard.p1on .who { display: block; background: #6ec6ff; }
+.ccard.p2on .who { display: block; background: #b78cff; color: #1d1030; }
+.cstip { margin-top: 10px; font-size: 12px; opacity: 0.75; min-height: 18px; }
+
+.startbtns { margin-top: 20px; display: flex; gap: 14px; justify-content: center; }
+.big {
+  cursor: pointer; font-size: 17px; font-weight: 800; letter-spacing: 3px;
+  background: linear-gradient(90deg, #2f9e77, #4ecca3); color: #06251d;
+  border: 0; border-radius: 999px; padding: 12px 44px; transition: all .16s;
+}
+.big.ghost { background: rgba(255,255,255,0.08); color: #e8eef7; border: 1px solid rgba(255,255,255,0.2); }
+.big:disabled { opacity: 0.35; cursor: not-allowed; }
+.big:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,204,163,0.3); }
+.hint { margin-top: 14px; font-size: 11px; opacity: 0.45; line-height: 1.8; }
 .hint kbd {
   background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 11px;
+  border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 10px;
 }
 </style>
 </head>
 <body>
   <div id="modebar">
     <button id="mb-top">🏝️ 俯视求生</button>
-    <button id="mb-mine">⛏️ 挖矿建造</button>
+    <button id="mb-mine">⛏️ 侧视挖矿</button>
     <span class="sep"></span>
     <button id="mb-menu">🏠 主菜单</button>
   </div>
@@ -79,80 +111,253 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0d14;
   <div id="menu">
     <div class="panel">
       <h1>WILDCRAFT</h1>
-      <h2>天空岛 · 荒野求生 · 二合一</h2>
-      <div class="cards">
-        <div class="card top" id="card-top">
-          <span class="tag">TOP-DOWN</span>
-          <div class="ico">🏝️</div>
-          <h3>俯视求生</h3>
-          <p>双人同屏开放世界：采集、合成、建家、打怪、迷宫机关、可收服野怪、载具与异空间。</p>
-        </div>
-        <div class="card mine" id="card-mine">
-          <span class="tag">SIDE / 3D-VIEW</span>
-          <div class="ico">⛏️</div>
-          <h3>挖矿建造</h3>
-          <p>2D 方块世界：挖矿放置、背包合成、枪械射击、双人同屏、夜晚怪潮、四种视角切换。</p>
+      <h2>天空岛 · 荒野求生 · 三合一（俯视世界 + 方块世界 + 守城夜战）</h2>
+
+      <div class="steprow">
+        <div class="steplabel">① 玩家数</div>
+        <div class="opts">
+          <div class="opt" id="opt-1p">
+            <span class="oi">🧍</span><h3>单人</h3><p>自己一个人闯荡天空岛</p>
+          </div>
+          <div class="opt" id="opt-2p">
+            <span class="oi">👫</span><h3>双人</h3><p>一人一套键，同屏合作（可合体）</p>
+          </div>
         </div>
       </div>
+
+      <div class="steprow" id="viewstep" style="display:none">
+        <div class="steplabel">② 玩法视角</div>
+        <div class="opts">
+          <div class="opt" id="opt-top">
+            <span class="oi">🏝️</span><h3>俯视求生</h3>
+            <p>开放世界：采集合成建家、打怪收服、迷宫机关、载具与异空间；夜里守住僵尸潮</p>
+          </div>
+          <div class="opt" id="opt-mine">
+            <span class="oi">⛏️</span><h3>侧视挖矿</h3>
+            <p>2D 方块世界：挖矿建造、背包合成、枪械射击；守城夜袭一波比一波猛（游戏中 V 键换四视角）</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="steprow" id="charstep">
+        <div class="steplabel">③ 选角色（AI 原创头像）</div>
+        <div class="csgrid" id="csgrid"></div>
+        <div class="cstip" id="cstip"></div>
+      </div>
+
+      <div class="startbtns">
+        <button class="big" id="btn-go" disabled>选好玩家数和视角后开始 ▶</button>
+        <button class="big ghost" id="btn-rand" style="display:none">🎲 随机角色</button>
+      </div>
       <div class="hint">
-        两个世界同时在线：顶部悬浮条随时切换，进度互不丢失<br>
-        俯视：<kbd>WASD</kbd>+<kbd>方向键</kbd> 双人 · 挖矿：<kbd>WASD</kbd> + 鼠标 · <kbd>P</kbd> 双人
+        两个世界同时在线，顶部悬浮条随时切换，进度互不丢失<br>
+        俯视：<kbd>WASD</kbd>+<kbd>方向键</kbd> 双人 · 侧视：<kbd>WASD</kbd> + 鼠标 · <kbd>P</kbd> 双人 · <kbd>V</kbd> 换视角
       </div>
     </div>
   </div>
 
 <script>
 'use strict';
-const menu = document.getElementById('menu');
-const bar = document.getElementById('modebar');
-const btnTop = document.getElementById('mb-top');
-const btnMine = document.getElementById('mb-mine');
-const btnMenu = document.getElementById('mb-menu');
-let mode = null;
-const frames = {};   // 两个世界各自一个 iframe，切换只换显示不重载（会话保留）
+var menu = document.getElementById('menu');
+var bar = document.getElementById('modebar');
+var btnTop = document.getElementById('mb-top');
+var btnMine = document.getElementById('mb-mine');
+var btnMenu = document.getElementById('mb-menu');
+var btnGo = document.getElementById('btn-go');
+var btnRand = document.getElementById('btn-rand');
+var cstip = document.getElementById('cstip');
+
+/* 与 js/chars.js 同一套角色（头像 img/char-*.png，全部 AI 原创生成） */
+var ROSTER = [
+  { id: 'naruto',  name: '疾风', tag: '均衡 · 橙袍忍者',     img: 'img/char-gale.png' },
+  { id: 'sasuke',  name: '影刃', tag: '敏捷 · 靛蓝剑客',     img: 'img/char-kage.png' },
+  { id: 'goku',    name: '武圣', tag: '力量 · 黑发武者',     img: 'img/char-wuxing.png' },
+  { id: 'ironman', name: '铁卫', tag: '重甲 · 红金机甲',     img: 'img/char-ironclad.png' },
+  { id: 'captain', name: '盾卫', tag: '坚毅 · 蓝盔老兵',     img: 'img/char-vanguard.png' },
+  { id: 'spider',  name: '飞檐', tag: '敏捷 · 红蓝蒙面侠',   img: 'img/char-acro.png' },
+  { id: 'ultra',   name: '巨光', tag: '光之力 · 银色巨人',   img: 'img/char-titan.png' },
+  { id: 'pika',    name: '雷鼠', tag: '灵巧 · 黄毛电兽',     img: 'img/char-volt.png' }
+];
+
+var state = { players: null, view: null, picked: [null, null], turn: 0 };
+var frames = {};   // 两个世界各自一个 iframe，切换只换显示不重载（会话保留）
+
+/* ---------- 选角色网格 ---------- */
+var grid = document.getElementById('csgrid');
+ROSTER.forEach(function (r, i) {
+  var card = document.createElement('div');
+  card.className = 'ccard';
+  card.id = 'cc-' + r.id;
+  card.innerHTML = '<img src="' + r.img + '" alt="' + r.name + '">' +
+    '<div class="cn">' + r.name + '</div><div class="ct">' + r.tag + '</div>' +
+    '<span class="who"></span>';
+  card.addEventListener('click', function () { pick(i); });
+  grid.appendChild(card);
+});
+
+function refreshCharUI() {
+  for (var i = 0; i < ROSTER.length; i++) {
+    var el = document.getElementById('cc-' + ROSTER[i].id);
+    el.classList.remove('p1on', 'p2on');
+    if (state.picked[0] === ROSTER[i].id) { el.classList.add('p1on'); el.querySelector('.who').textContent = 'P1'; }
+    if (state.picked[1] === ROSTER[i].id) { el.classList.add('p2on'); el.querySelector('.who').textContent = 'P2'; }
+  }
+  var solo = state.players === '1';
+  if (state.picked[0] && (solo || state.picked[1])) {
+    cstip.textContent = (solo ? '已选：' : 'P1 与 P2 都已选好：') +
+      ROSTER.filter(function (r) { return r.id === state.picked[0] || (!solo && r.id === state.picked[1]); })
+        .map(function (r) { return r.name; }).join(' + ') + '，点开始！';
+  } else {
+    cstip.textContent = solo ? 'P1：点一个头像选角色' : 'P1 先选，再 P2 选（也可以点「随机角色」偷懒）';
+  }
+}
+
+function pick(i) {
+  var id = ROSTER[i].id;
+  var other = 1 - state.turn;
+  if (state.picked[other] === id) { cstip.textContent = '这个角色已经被另一位玩家选走啦，换一个～'; return; }
+  state.picked[state.turn] = id;
+  if (state.players === '1' || state.turn === 1) state.turn = 0;
+  else state.turn = 1;
+  refreshCharUI();
+}
+
+/* ---------- 步骤 1/2 ---------- */
+document.getElementById('opt-1p').addEventListener('click', function () {
+  state.players = '1';
+  this.classList.add('on');
+  document.getElementById('opt-2p').classList.remove('on');
+  state.picked = [null, null]; state.turn = 0;
+  stepForward();
+});
+document.getElementById('opt-2p').addEventListener('click', function () {
+  state.players = '2';
+  this.classList.add('on');
+  document.getElementById('opt-1p').classList.remove('on');
+  state.picked = [null, null]; state.turn = 0;
+  stepForward();
+});
+document.getElementById('opt-top').addEventListener('click', function () {
+  state.view = 'top';
+  this.classList.add('on');
+  document.getElementById('opt-mine').classList.remove('on');
+  stepForward();
+});
+document.getElementById('opt-mine').addEventListener('click', function () {
+  state.view = 'mine';
+  this.classList.add('on');
+  document.getElementById('opt-top').classList.remove('on');
+  stepForward();
+});
+
+function stepForward() {
+  var hasPlayers = !!state.players;
+  var hasView = !!state.view;
+  document.getElementById('viewstep').style.display = hasPlayers ? '' : 'none';
+  document.getElementById('charstep').style.display = (hasPlayers && hasView) ? '' : 'none';
+  btnRand.style.display = (hasPlayers && hasView) ? '' : 'none';
+  refreshCharUI();
+  updateGoBtn();
+}
+
+function ready() {
+  return !!state.players && !!state.view && !!state.picked[0] &&
+    (state.players === '1' || !!state.picked[1]);
+}
+function updateGoBtn() {
+  if (ready()) {
+    btnGo.disabled = false;
+    var names = ROSTER.filter(function (r) {
+      return r.id === state.picked[0] || (state.players === '2' && r.id === state.picked[1]);
+    }).map(function (r) { return r.name; }).join(' + ');
+    btnGo.textContent = (state.players === '1' ? '单人' : '双人') + ' · ' +
+      (state.view === 'top' ? '俯视求生' : '侧视挖矿') + ' · ' + names + ' ▶';
+  } else {
+    btnGo.disabled = true;
+    btnGo.textContent = '选好玩家数和视角后开始 ▶';
+  }
+}
+
+btnRand.addEventListener('click', function () {
+  var pool = ROSTER.filter(function (r) { return r.id !== state.picked[0]; });
+  if (state.players === '1') {
+    state.picked[0] = pool[(Math.random() * pool.length) | 0].id;
+  } else {
+    state.picked[0] = pool[(Math.random() * pool.length) | 0];
+    var pool2 = pool.filter(function (r) { return r.id !== state.picked[0]; });
+    state.picked[1] = pool2[(Math.random() * pool2.length) | 0];
+  }
+  state.turn = 0;
+  refreshCharUI(); updateGoBtn();
+});
+
+btnGo.addEventListener('click', function () { if (ready()) enter(state.view); });
+
+/* ---------- 进世界（iframe 驻留） ---------- */
+function frameURL(m) {
+  if (m === 'top') {
+    return 'topdown.html?auto=1&players=' + state.players +
+      '&p1=' + (state.picked[0] || 'naruto') +
+      (state.players === '2' ? '&p2=' + (state.picked[1] || 'sasuke') : '');
+  }
+  /* mine：hash 快捷入口 side 视角；2p 双人；末段角色 id 换肤 */
+  return 'mine.html#side' + (state.players === '2' ? '-2p' : '') +
+    (state.picked[0] ? '-' + state.picked[0] : '');
+}
 
 function getFrame(m) {
   if (frames[m]) return frames[m];
-  const f = document.createElement('iframe');
+  var f = document.createElement('iframe');
   f.id = 'frame-' + m;
   f.title = 'wildcraft ' + m;
   f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;display:none;';
-  f.src = (m === 'top') ? 'topdown.html' : 'mine/index.html';
+  f.src = frameURL(m);
   document.body.appendChild(f);
   frames[m] = f;
   return f;
 }
 
 function setBar() {
-  btnTop.classList.toggle('on', mode === 'top');
-  btnMine.classList.toggle('on', mode === 'mine');
+  btnTop.classList.toggle('on', state.view === 'top');
+  btnMine.classList.toggle('on', state.view === 'mine');
 }
 
 function enter(m) {
-  mode = m;
+  state.view = m;
   menu.classList.add('hidden');
-  for (const k in frames) frames[k].style.display = (k === m) ? 'block' : 'none';
+  for (var k in frames) frames[k].style.display = 'none';
   getFrame(m).style.display = 'block';
   bar.style.display = 'flex';
   setBar();
 }
 
 function backToMenu() {
-  mode = null;
-  for (const k in frames) frames[k].style.display = 'none';
+  state.view = null;
+  for (var k in frames) frames[k].style.display = 'none';
   bar.style.display = 'none';
   menu.classList.remove('hidden');
+  btnTop.classList.remove('on');
+  btnMine.classList.remove('on');
 }
 
-document.getElementById('card-top').addEventListener('click', () => enter('top'));
-document.getElementById('card-mine').addEventListener('click', () => enter('mine'));
-btnTop.addEventListener('click', () => enter('top'));
-btnMine.addEventListener('click', () => enter('mine'));
+btnTop.addEventListener('click', function () {
+  if (frames.top) enter('top');
+});
+btnMine.addEventListener('click', function () {
+  if (frames.mine) enter('mine');
+});
 btnMenu.addEventListener('click', backToMenu);
 
-// URL hash 直达：#top / #mine
-const h = location.hash.slice(1);
-if (h === 'top' || h === 'mine') enter(h);
+/* URL hash 直达：#top / #mine（进菜单并预选视角，玩家数默认双人） */
+(function () {
+  var h = location.hash.slice(1);
+  if (h === 'top' || h === 'mine') {
+    state.players = '2'; state.view = h;
+    document.getElementById('opt-2p').classList.add('on');
+    document.getElementById(h === 'top' ? 'opt-top' : 'opt-mine').classList.add('on');
+    stepForward();
+  }
+})();
 </script>
 </body>
 </html>

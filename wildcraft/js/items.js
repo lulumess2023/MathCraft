@@ -28,19 +28,19 @@ var ITEMS = {
   mgun:   { name: '机枪', color: '#334155', ch: '机', dmg: 2, up: true, gun: { dmg: 6, rate: 6.5, range: 400, speed: 720, color: '#FDE047', size: 3 } },
   excavator: { name: '挖掘机', color: '#F59E0B', ch: '挖', vehicle: 'excavator' },
   tank:   { name: '坦克', color: '#64748B', ch: '坦', vehicle: 'tank' },
-  /* 收服球：朝野怪扔过去，血越少越好抓，抓到就进你的宠物栏 */
-  cball:  { name: '收服球', color: '#EF4444', ch: '球', capture: true },
+  /* 驯灵环：朝野怪扔过去，血越少越好抓，抓到就进你的宠物栏 */
+  cball:  { name: '驯灵环', color: '#EF4444', ch: '球', capture: true },
   /* 机器人守护者：召唤出来替你打架（比僵尸小队硬） */
   robot:  { name: '机器人守护者', color: '#38BDF8', ch: '机', summon: 'robot' },
   ice:    { name: '冰',   color: '#9FD4EE', ch: '冰', place: O.ICEWALL },
-  /* 七颗龙珠：集齐 7 颗能召唤神龙许一个愿 */
-  db1: { name: '一星龙珠', color: '#F59E0B', ch: '①', ball: 1 },
-  db2: { name: '二星龙珠', color: '#F59E0B', ch: '②', ball: 2 },
-  db3: { name: '三星龙珠', color: '#F59E0B', ch: '③', ball: 3 },
-  db4: { name: '四星龙珠', color: '#F59E0B', ch: '④', ball: 4 },
-  db5: { name: '五星龙珠', color: '#F59E0B', ch: '⑤', ball: 5 },
-  db6: { name: '六星龙珠', color: '#F59E0B', ch: '⑥', ball: 6 },
-  db7: { name: '七星龙珠', color: '#F59E0B', ch: '⑦', ball: 7 }
+  /* 七颗星曜石：集齐 7 颗能召唤星龙许一个愿 */
+  db1: { name: '一星星曜石', color: '#F59E0B', ch: '①', ball: 1 },
+  db2: { name: '二星星曜石', color: '#F59E0B', ch: '②', ball: 2 },
+  db3: { name: '三星星曜石', color: '#F59E0B', ch: '③', ball: 3 },
+  db4: { name: '四星星曜石', color: '#F59E0B', ch: '④', ball: 4 },
+  db5: { name: '五星星曜石', color: '#F59E0B', ch: '⑤', ball: 5 },
+  db6: { name: '六星星曜石', color: '#F59E0B', ch: '⑥', ball: 6 },
+  db7: { name: '七星星曜石', color: '#F59E0B', ch: '⑦', ball: 7 }
 };
 
 /* ---------------- 武器升级 ----------------
@@ -87,10 +87,10 @@ function wTag(p, id) {
   return lv > 0 ? ' Lv' + lv : '';
 }
 
-/* 龙珠的星数 → 物品 id */
+/* 星曜石的星数 → 物品 id */
 function ballId(n) { return 'db' + n; }
 
-/* 玩家身上集齐了几颗龙珠（返回还缺的星号数组） */
+/* 玩家身上集齐了几颗星曜石（返回还缺的星号数组） */
 function missingBalls(p) {
   var miss = [];
   for (var n = 1; n <= 7; n++) if (Inv.count(p.inv, 'db' + n) <= 0) miss.push(n);
@@ -117,7 +117,7 @@ var RECIPES = [
   { out: { id: 'torch',  n: 4 }, need: { stick: 1, coal: 1 },  tip: '火把（夜里照亮）' },
   { out: { id: 'epotato', n: 1 }, need: { apple: 2, gold: 2 }, tip: '附魔土豆（扔给僵尸吃，吃了变自己人）' },
   { out: { id: 'robot',  n: 1 }, need: { iron: 8, gold: 2, stick: 2 }, tip: '机器人守护者（召唤出来替你打架）' },
-  { out: { id: 'cball',  n: 2 }, need: { iron: 2, gold: 1, stone: 2 }, tip: '收服球 ×2（扔向野怪，血越少越好抓）' }
+  { out: { id: 'cball',  n: 2 }, need: { iron: 2, gold: 1, stone: 2 }, tip: '驯灵环 ×2（扔向野怪，血越少越好抓）' }
 ];
 
 function makeInv(n) {
@@ -303,7 +303,7 @@ function drawItemIcon(g, id, x, y, s) {
       g.fillStyle = '#475569'; g.fillRect(4, 23, 5, 4); g.fillRect(23, 23, 5, 4);      // 手臂
       break;
     case 'cball':
-      /* 收服球：上半红下半白，中间一颗按钮 */
+      /* 驯灵环：上半红下半白，中间一颗按钮 */
       g.fillStyle = '#EF4444';
       g.beginPath(); g.arc(16, 16, 12, Math.PI, 0); g.fill();
       g.fillStyle = '#F8FAFC';

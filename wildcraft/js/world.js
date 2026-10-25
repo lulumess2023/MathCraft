@@ -353,7 +353,7 @@ var PICKUP_TABLE = [
   { p: 0.965, id: 'robot', n: 1 },      // 机器人守护者
   { p: 0.988, id: 'excavator', n: 1 },
   { p: 0.9995, id: 'tank', n: 1 },
-  { p: 1.00, id: 'dball', n: 1 }        // 龙珠：极稀有，捡到时自动补“还缺的那颗”
+  { p: 1.00, id: 'dball', n: 1 }        // 星曜石：极稀有，捡到时自动补“还缺的那颗”
 ];
 function pickType(r) {
   for (var i = 0; i < PICKUP_TABLE.length; i++) if (r < PICKUP_TABLE[i].p) return PICKUP_TABLE[i];

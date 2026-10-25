@@ -78,7 +78,7 @@ const step = (n, label) => {
   return true;
 };
 
-/* 剧本化的用例需要确定性：先把「白天刷小精灵」关掉，等到专门测它的时候再打开 */
+/* 剧本化的用例需要确定性：先把「白天刷小野灵」关掉，等到专门测它的时候再打开 */
 Game.started = true;
 Game.critterTimer = 1e9;
 
@@ -874,7 +874,7 @@ step(30, '回收后继续跑');
       if (p.hp >= hp0) errors.push('点燃了却不会持续掉血');
       else console.log('  ✓ 灼烧：被炎魔打中会被点燃，之后持续掉血（' + hp0.toFixed(0) + ' → ' + p.hp.toFixed(0) + '）');
     }
-    /* 打倒炎魔掉金子 + 大概率给龙珠 */
+    /* 打倒炎魔掉金子 + 大概率给星曜石 */
     p.inv.forEach((s, i) => { p.inv[i] = null; });
     p.burn = 0;
     Game.drops.length = 0;
@@ -884,8 +884,8 @@ step(30, '回收后继续跑');
       f2.hurt(99999, f2.x + 10, f2.y, p);
       if (sandbox.missingBalls(p).length < 7) gaveBall = true;
     }
-    if (!gaveBall) errors.push('打倒 12 次炎魔一次龙珠都没给');
-    else console.log('  ✓ 打倒炎魔：掉金子/药箱/土豆，还会给龙珠（已收到 ' + (7 - sandbox.missingBalls(p).length) + ' 颗）');
+    if (!gaveBall) errors.push('打倒 12 次炎魔一次星曜石都没给');
+    else console.log('  ✓ 打倒炎魔：掉金子/药箱/土豆，还会给星曜石（已收到 ' + (7 - sandbox.missingBalls(p).length) + ' 颗）');
     Game.drops.length = 0;
   }
   Game.mobs.length = 0; Game.bullets.length = 0;
@@ -893,7 +893,7 @@ step(30, '回收后继续跑');
   Game.spawnTimer = 2;
 }
 
-/* 42. 七龙珠：集齐 7 颗 → 召唤神龙 → 许愿 → 龙珠消耗掉 */
+/* 42. 七星曜石：集齐 7 颗 → 召唤星龙 → 许愿 → 星曜石消耗掉 */
 {
   const p = Game.players[0];
   p.inv.forEach((s, i) => { p.inv[i] = null; });
@@ -902,24 +902,24 @@ step(30, '回收后继续跑');
   const got1 = 7 - sandbox.missingBalls(p).length;
   Game.grantDragonBall(p);
   const got2 = 7 - sandbox.missingBalls(p).length;
-  if (got1 !== 1 || got2 !== 2) errors.push('龙珠给重复了（' + got1 + ' → ' + got2 + '）');
-  else console.log('  ✓ 龙珠：捡到的永远是“还缺的那颗”（' + got1 + ' → ' + got2 + '）');
+  if (got1 !== 1 || got2 !== 2) errors.push('星曜石给重复了（' + got1 + ' → ' + got2 + '）');
+  else console.log('  ✓ 星曜石：捡到的永远是“还缺的那颗”（' + got1 + ' → ' + got2 + '）');
   /* 补齐 */
   while (sandbox.missingBalls(p).length) Game.grantDragonBall(p);
   if (!sandbox.hasAllBalls(p)) errors.push('补齐后 hasAllBalls 仍然是 false');
   else {
     Game.dragonWish = null;
     Game.summonDragon(p);
-    if (!Game.dragonWish) errors.push('集齐七颗龙珠却召唤不出神龙');
+    if (!Game.dragonWish) errors.push('集齐七颗星曜石却召唤不出星龙');
     else {
       const wishIdx = 1;                       // “满血 + 补给”
       p.hp = 3; p.food = 1;
       Game.doWish(wishIdx);
       if (p.hp !== p.maxhp) errors.push('许愿“满血”之后没有回满血');
-      else if (sandbox.hasAllBalls(p)) errors.push('许愿之后龙珠没有消耗掉');
+      else if (sandbox.hasAllBalls(p)) errors.push('许愿之后星曜石没有消耗掉');
       else if (Game.dragonWish) errors.push('许愿之后许愿面板没有关掉');
-      else console.log('  ✓ 神龙许愿：集齐 7 颗 → 召唤 → 选「' + Game.WISHES[wishIdx].name +
-        '」→ 愿望生效，龙珠消耗并散落回世界');
+      else console.log('  ✓ 星龙许愿：集齐 7 颗 → 召唤 → 选「' + Game.WISHES[wishIdx].name +
+        '」→ 愿望生效，星曜石消耗并散落回世界');
     }
   }
   p.inv.forEach((s, i) => { p.inv[i] = null; });
@@ -1122,7 +1122,7 @@ console.log('\n【益智神殿：推箱 / 复位 / 回家】');
   Realm.tryExit(p1);
   ok2(Game.lottery && Realm.active, '站上出口按交互键 → 先开出抽奖转盘（还没离开）');
   ok2(Game.lottery.cells.length === 8, '转盘上有 8 个奖品格');
-  ok2(Game.lottery.cells.some(c => c.icon === 'dball'), '奖池里有龙珠');
+  ok2(Game.lottery.cells.some(c => c.icon === 'dball'), '奖池里有星曜石');
   ok2(Game.lottery.phase === 'spin', '转盘在转');
   /* 转盘是暂停态，绕过 step() 的暂停检测直接跑帧 */
   for (let f = 0; f < 210; f++) { Game.update(0.016); Game.render(); Input.endFrame(); }
@@ -1135,7 +1135,7 @@ console.log('\n【益智神殿：推箱 / 复位 / 回家】');
   ok2(!Game.lottery, '按交互键 → 收下奖励，转盘关了');
   ok2(!Realm.active, '抽奖结束自动回到原来的世界');
   ok2(Math.abs(p1.x - home.x) < 2 && Math.abs(p1.y - home.y) < 2, '回到进传送门之前站的地方');
-  /* 到底发奖没有：总有一格的东西进了背包（龙珠走 grantDragonBall，其余直接给） */
+  /* 到底发奖没有：总有一格的东西进了背包（星曜石走 grantDragonBall，其余直接给） */
   const gotSomething = Object.keys(invBefore).some(id => Inv.count(p1.inv, id) > (invBefore[id] || 0)) ||
     p1.inv.some(s => s && /^db\d$/.test(s.id));
   ok2(gotSomething, '抽到的「' + prizeCell.label + '」真的进了背包');
@@ -1192,19 +1192,19 @@ console.log('\n【霸王龙】');
   m.hp = 1;
   m.hurt(50, m.x + 20, m.y, p);
   ok2(!m.alive, '霸王龙被打倒');
-  ok2(Game.drops.some(d => d.id === 'cball'), '打倒霸王龙会掉收服球');
+  ok2(Game.drops.some(d => d.id === 'cball'), '打倒霸王龙会掉驯灵环');
   ok2(Game.drops.length >= 4, '掉落很丰盛（' + Game.drops.length + ' 堆）');
   Game.mobs = Game.mobs.filter(x => x !== m);
 }
 
-console.log('\n【收服小精灵 / 放出来当帮手】');
+console.log('\n【收服小野灵 / 放出来当帮手】');
 {
   const p = Game.players[0];
   const ptx = Math.floor(p.x / TILE), pty = Math.floor(p.y / TILE);
   clearArea(ptx, pty, 7);
   const m = new Mob('fairy', p.x + 46, p.y);
   Game.mobs.push(m);
-  ok2(m.catchable, '小精灵是可收服的野怪');
+  ok2(m.catchable, '小野灵是可收服的野怪');
   clearInv(p);
   p.inv[0] = { id: 'cball', count: 30 }; p.sel = 0;
   p.hp = p.maxhp;
@@ -1217,13 +1217,13 @@ console.log('\n【收服小精灵 / 放出来当帮手】');
     Game.throwBall(p);
     for (let f = 0; f < 14; f++) { Game.update(0.016); Game.render(); Input.endFrame(); }
   }
-  ok2(p.pets.length === 1, '扔了 ' + tries2 + ' 次收服球，抓住了小精灵');
+  ok2(p.pets.length === 1, '扔了 ' + tries2 + ' 次驯灵环，抓住了小野灵');
   ok2(p.pets[0] && p.pets[0].type === 'fairy', '进了 ' + p.name + ' 的宠物栏');
   p.petCd = 0;
   const before = Game.allyCount();
   ok2(p.releasePet(), '按放生键 → 派出来了');
   const pet = Game.mobs.filter(mm => mm.pet)[0];
-  ok2(!!pet && pet.ally, '放出来的小精灵是自己人（ally=' + (pet && pet.ally) + '）');
+  ok2(!!pet && pet.ally, '放出来的小野灵是自己人（ally=' + (pet && pet.ally) + '）');
   ok2(Game.allyCount() === before + 1, '友军数量 +1（' + before + ' → ' + Game.allyCount() + '）');
   /* 打倒它 → 回栏里养伤，还能再放 */
   if (pet) { pet.hurt(9999, pet.x + 10, pet.y, p); }
@@ -1231,7 +1231,7 @@ console.log('\n【收服小精灵 / 放出来当帮手】');
   ok2(p.pets[0].hp > 0 && p.pets[0].hp <= p.pets[0].maxhp, '回栏时留了 ' + p.pets[0].hp + ' 血');
 }
 
-console.log('\n【小精灵与植物：白天也会出现】');
+console.log('\n【小野灵与植物：白天也会出现】');
 {
   Game.mobs = Game.mobs.filter(mm => !mm.catchable);
   Game.critterTimer = 0;                 // 打开「白天刷小家伙」
@@ -1240,11 +1240,11 @@ console.log('\n【小精灵与植物：白天也会出现】');
   const c = Game.mobs.filter(mm => mm.catchable)[0];
   ok2(!!c, '白天也能刷出可以收服的小家伙（' + (c ? c.label : '没刷出来') + '）');
   if (c) {
-    ok2(['fairy', 'peashooter', 'sunflower', 'wallnut'].indexOf(c.type) >= 0, '刷出来的是小精灵或植物：' + c.label);
+    ok2(['fairy', 'peashooter', 'sunflower', 'wallnut'].indexOf(c.type) >= 0, '刷出来的是小野灵或植物：' + c.label);
     ok2(c.passive && !c.aggro, '刷出来是中性的 —— 不会主动打人（' + c.label + '）');
     if (c.plant) ok2(c.speed === 0, '植物是扎在土里不动的（' + c.label + ' speed=' + c.speed + '）');
-    else ok2(c.speed > 0, '小精灵是会飞的（' + c.label + ' speed=' + c.speed + '）');
-    /* 豌豆射手：不惹它就不打人，打了才还手 */
+    else ok2(c.speed > 0, '小野灵是会飞的（' + c.label + ' speed=' + c.speed + '）');
+    /* 豆荚炮手：不惹它就不打人，打了才还手 */
     Game.mobs = Game.mobs.filter(mm => !mm.catchable);
     const pp = Game.players[0];
     pp.alive = true; pp.hp = pp.maxhp; pp.food = pp.maxfood; pp.respawn = 0;
@@ -1253,17 +1253,17 @@ console.log('\n【小精灵与植物：白天也会出现】');
     const peaThere = () => Game.bullets.some(b => b.hostile && b.color === '#86EFAC');
     let passiveFire = false;
     Game.bullets.length = 0;
-    for (let f = 0; f < 100 && !passiveFire; f++) { step(1, '豌豆射手待机'); if (peaThere()) passiveFire = true; }
-    ok2(!passiveFire, '不惹豌豆射手，它就不会放冷枪（可以从旁边安心走过）');
+    for (let f = 0; f < 100 && !passiveFire; f++) { step(1, '豆荚炮手待机'); if (peaThere()) passiveFire = true; }
+    ok2(!passiveFire, '不惹豆荚炮手，它就不会放冷枪（可以从旁边安心走过）');
     ps.hurt(3, pp.x, pp.y, pp);                     // 惹毛它
     ok2(ps.aggro, '打它一下 → 它记仇了');
     let angry = false;
     Game.bullets.length = 0;
-    for (let f = 0; f < 150 && !angry; f++) { step(1, '豌豆射手还手'); if (peaThere()) angry = true; }
+    for (let f = 0; f < 150 && !angry; f++) { step(1, '豆荚炮手还手'); if (peaThere()) angry = true; }
     ok2(angry, '被惹毛之后开始隔着老远吐豌豆');
     Game.mobs = Game.mobs.filter(mm => mm !== ps);
   }
-  /* 向日葵：被收服之后给主人回血 */
+  /* 日光花：被收服之后给主人回血 */
   Game.mobs = Game.mobs.filter(mm => !mm.catchable);
   const p = Game.players[0];
   p.alive = true; p.respawn = 0;
@@ -1271,12 +1271,12 @@ console.log('\n【小精灵与植物：白天也会出现】');
   const sf = new Mob('sunflower', p.x + 40, p.y);
   sf.ally = true; sf.leader = p; sf.recruiter = p;
   Game.mobs.push(sf);
-  step(260, '向日葵回血');
-  ok2(p.hp > 10, '向日葵给主人回了血（10 → ' + p.hp.toFixed(1) + '）');
+  step(260, '日光花回血');
+  ok2(p.hp > 10, '日光花给主人回了血（10 → ' + p.hp.toFixed(1) + '）');
   Game.mobs = Game.mobs.filter(mm => mm !== sf);
 }
 
-/* 14. 长时间空转（内存/数组不会爆，顺便让白天的小精灵也刷起来一起跑） */
+/* 14. 长时间空转（内存/数组不会爆，顺便让白天的小野灵也刷起来一起跑） */
 Game.critterTimer = 2;
 const t0 = Date.now();
 step(1200, '空转 20 秒游戏时间');
@@ -1311,7 +1311,7 @@ console.log('\n【黑屏自愈】');
   Game.cam.x = NaN; Game.cam.zoom = NaN;
   Game.selfHeal();
   ok2(Game.mobs.every(m => isFinite(m.x) && isFinite(m.y)), 'selfHeal 之后所有怪坐标正常');
-  ok2(Game.bullets.length === 0 && Game.balls.length === 0, '带 NaN 的子弹/收服球被清掉');
+  ok2(Game.bullets.length === 0 && Game.balls.length === 0, '带 NaN 的子弹/驯灵环被清掉');
   ok2(isFinite(Game.cam.x) && isFinite(Game.cam.zoom), '相机恢复正常');
   step(30, '自愈后再跑半秒');
   ok2(true, '自愈后世界继续运转');
@@ -1320,14 +1320,14 @@ console.log('\n【黑屏自愈】');
   let rrectOk = true;
   try { sandbox.rrect(fakeCtx, 0, 0, -50, 20, 12); } catch (e) { rrectOk = false; }
   ok2(rrectOk, 'rrect 拿到负宽高也不会抛异常');
-  /* P2 换佐助套装：画一遍不炸 */
+  /* P2 换影刃套装：画一遍不炸 */
   let drawOk = true;
   try { Game.players[1].draw(makeCtx()); } catch (e) { drawOk = false; }
-  ok2(drawOk, 'P2 佐助形象渲染正常');
+  ok2(drawOk, 'P2 影刃形象渲染正常');
 }
 
-/* 16. 拳皇式选人：角色库 / 属性应用 / 选人状态机 / 存档带角色 */
-console.log('\n【拳皇式选人】');
+/* 16. 街机式选人：角色库 / 属性应用 / 选人状态机 / 存档带角色 */
+console.log('\n【街机式选人】');
 {
   /* 16.1 角色库本身 */
   ok2(CHARS.length === 8, '角色库有 8 位英雄（实际 ' + CHARS.length + ' 位）');
@@ -1337,9 +1337,9 @@ console.log('\n【拳皇式选人】');
   ok2(CHARS.every(c => c.stats.speed >= 150 && c.stats.speed <= 195), '速度都在 150–195 之间（不破坏平衡）');
   ok2(CHARS.every(c => c.stats.hp >= 28 && c.stats.hp <= 38), '血量都在 28–38 之间（避免满血被一击秒杀）');
   ok2(CHARS.every(c => c.stats.dmg >= 0.85 && c.stats.dmg <= 1.25), '攻击倍率都在 0.85–1.25 之间');
-  ok2(CHARS.some(c => c.src === '漫威'), '有漫威阵营的角色');
-  ok2(CHARS.filter(c => c.src === '火影忍者').length === 2, '火影有鸣人 + 佐助');
-  ok2(charById('spider').name === '蜘蛛侠', 'charById 能按 id 找到角色');
+  ok2(CHARS.every(c => c.src === '荒野远征队'), '全部角色都来自原创阵营荒野远征队');
+  ok2(CHARS.every(c => c.avatar && c.avatar.startsWith('img/char-')), '每个角色都有 AI 头像字段');
+  ok2(charById('spider').name === '飞檐', 'charById 能按 id 找到角色');
   ok2(charById('不存在的') === null, 'charById 找不到时返回 null');
   /* 8 种头型全部画得出来（不抛异常） */
   let allDraw = true;
@@ -1351,18 +1351,18 @@ console.log('\n【拳皇式选人】');
 
   /* 16.2 换角色 = 换属性 */
   const p1 = Game.players[0], p2 = Game.players[1];
-  ok2(Game.applyChar(p1, 'ironman'), 'P1 换钢铁侠');
-  ok2(p1.speed === 160 && p1.maxhp === 36 && p1.dmgMul === 1.05, '属性跟着换成钢铁侠的（速度 ' + p1.speed + ' 血 ' + p1.maxhp + ' 倍率 ' + p1.dmgMul + '）');
+  ok2(Game.applyChar(p1, 'ironman'), 'P1 换铁卫');
+  ok2(p1.speed === 160 && p1.maxhp === 36 && p1.dmgMul === 1.05, '属性跟着换成铁卫的（速度 ' + p1.speed + ' 血 ' + p1.maxhp + ' 倍率 ' + p1.dmgMul + '）');
   p1.hp = 99;
   Game.applyChar(p1, 'spider');
   ok2(p1.hp === p1.maxhp, '换角色时多出来的血被钳到新上限（' + p1.hp + '/' + p1.maxhp + '）');
   ok2(!Game.applyChar(p1, 'nope-nope'), '换不存在的角色会失败');
-  ok2(p1.char.id === 'spider', '换失败的请求不生效，还是蜘蛛侠');
+  ok2(p1.char.id === 'spider', '换失败的请求不生效，还是飞檐');
   /* 恢复默认，别影响后面的用例 */
   Game.applyChar(p1, 'naruto'); Game.applyChar(p2, 'sasuke');
   p1.hp = p1.maxhp; p2.hp = p2.maxhp;
 
-  /* 16.3 伤害乘算：同一把武器，奥特曼打得比皮卡丘疼 */
+  /* 16.3 伤害乘算：同一把武器，巨光打得比雷鼠疼 */
   {
     const gk = Game.players[0];
     clearInv(gk);
@@ -1371,7 +1371,7 @@ console.log('\n【拳皇式选人】');
     const dmgU = Math.max(1, Math.round((3 + wDmg(gk, Inv.held(gk))) * gk.dmgMul));
     Game.applyChar(gk, 'pika');
     const dmgP = Math.max(1, Math.round((3 + wDmg(gk, Inv.held(gk))) * gk.dmgMul));
-    ok2(dmgU > dmgP, '同一把石剑：奥特曼 ' + dmgU + ' 伤 > 皮卡丘 ' + dmgP + ' 伤（角色攻击倍率生效）');
+    ok2(dmgU > dmgP, '同一把石剑：巨光 ' + dmgU + ' 伤 > 雷鼠 ' + dmgP + ' 伤（角色攻击倍率生效）');
     Game.applyChar(gk, 'naruto');
     gk.hp = gk.maxhp;
   }
@@ -1438,8 +1438,8 @@ console.log('\n【拳皇式选人】');
     Game.applyChar(Game.players[1], 'sasuke');
     Game.players[0].hp = 30;
     ok2(Save.load(), '读档成功');
-    ok2(Game.players[0].char.id === 'captain' && Game.players[1].char.id === 'pika', '读档后角色恢复成美国队长 + 皮卡丘');
-    ok2(Game.players[1].maxfood === 24, '皮卡丘的大胃王属性也回来了（体力上限 ' + Game.players[1].maxfood + '）');
+    ok2(Game.players[0].char.id === 'captain' && Game.players[1].char.id === 'pika', '读档后角色恢复成盾卫 + 雷鼠');
+    ok2(Game.players[1].maxfood === 24, '雷鼠的大胃王属性也回来了（体力上限 ' + Game.players[1].maxfood + '）');
     ok2(Game.players[0].hp <= Game.players[0].maxhp, '血量没超过新角色上限');
     sandbox.localStorage.removeItem(Save.KEY);
   }

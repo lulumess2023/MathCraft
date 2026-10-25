@@ -26,7 +26,7 @@ var Game = {
   W: 0, H: 0, dpr: 1,
   layer: 0,                 // 0 = 天空岛，1 = 地面大陆
   players: [], mobs: [], drops: [], vehicles: [], bullets: [], explosions: [],
-  balls: [],                  // 飞在空中的收服球
+  balls: [],                  // 飞在空中的驯灵环
   baits: [],                  // 扔在地上的附魔土豆
   pops: [],                   // 策反成功的彩虹特效
   maxAllies: 8,               // 小队上限（僵尸 + 机器人，机器人最多 4 个）
@@ -158,7 +158,7 @@ var Game = {
     self._beginGame = beginGame;
 
     document.getElementById('btn-start').addEventListener('click', function () {
-      /* 拳皇式选人：先挑角色再进游戏 */
+      /* 街机式选人：先挑角色再进游戏 */
       self._setupState = setupState;
       self.openCharSelect();
     });
@@ -189,6 +189,31 @@ var Game = {
 
     this.refreshStart();
     this.buildHints();
+
+    /* 外部统一菜单直通：index.html?auto=1&players=2&p1=id&p2=id
+       跳过本页的开始界面与选人，直接按参数开局（load=1 时读档续玩） */
+    try {
+      var qs = new URLSearchParams(location.search);
+      if (qs.get('auto') === '1') {
+        var players = qs.get('players') === '1' ? '1' : '2';
+        setupState.players = players;
+        setupState.p1ctl = 'kb';
+        setupState.p2ctl = 'kb';
+        self.solo = players === '1';
+        self.p1Ctrl = 'kb';
+        self.p2Ctrl = 'kb';
+        self.newGame();
+        self.applyChar(self.players[0], qs.get('p1') || 'naruto');
+        if (!self.solo) self.applyChar(self.players[1], qs.get('p2') || 'sasuke');
+        if (qs.get('load') === '1' && typeof Save !== 'undefined' && Save.load()) {
+          setupState.players = self.solo ? '1' : '2';
+          refreshSetup();
+          beginGame(true);
+        } else {
+          beginGame(false);
+        }
+      }
+    } catch (eAuto) { }
   },
 
   /* 按键提示：按各自的控制方式生成，贴在自己那一侧（中间留给视野） */
@@ -196,10 +221,10 @@ var Game = {
     var pad1 = this.p1Ctrl === 'pad', pad2 = this.p2Ctrl === 'pad';
     var h1 = '<span class="t p1c">🎮 P1 ' + (pad1 ? '· 手柄' : '· 键盘') + '</span>' + (pad1
       ? '<b>摇杆</b> 走 · <b>A</b> 挖/打/合体 · <b>B</b> 放/吃/召唤<br><b>X</b> 交互 · <b>Y</b> 合成 · <b>LB</b> 任务本 · <b>RB</b> 换物品<br><b>LT</b> 跟随保护 · <b>RT</b> 丢弃手上的 · <b>Start</b> 回白天'
-      : '<b>WASD</b> 走 · <b>空格</b> 挖/打/合体 · <b>E</b> 放/吃/扔收服球<br><b>F</b> 交互 · <b>C</b> 合成 · <b>Q</b> 任务本 · <b>1-9</b> 选物品<br><b>G</b> 跟随保护 · <b>B</b> 放出小精灵 · <b>Z</b> 丢弃手上的 · <b>R</b> 回到白天');
+      : '<b>WASD</b> 走 · <b>空格</b> 挖/打/合体 · <b>E</b> 放/吃/扔驯灵环<br><b>F</b> 交互 · <b>C</b> 合成 · <b>Q</b> 任务本 · <b>1-9</b> 选物品<br><b>G</b> 跟随保护 · <b>B</b> 放出小野灵 · <b>Z</b> 丢弃手上的 · <b>R</b> 回到白天');
     var h2 = '<span class="t p2c">🎮 P2 ' + (pad2 ? '· 手柄' : '· 键盘') + '</span>' + (pad2
       ? '<b>摇杆</b> 走 · <b>A</b> 挖/打/合体 · <b>B</b> 放/吃/召唤<br><b>X</b> 交互 · <b>Y</b> 合成 · <b>LB</b> 任务本 · <b>RB</b> 换物品<br><b>LT</b> 跟随保护 · <b>RT</b> 丢弃手上的 · <b>Start</b> 回白天'
-      : '<b>方向键</b> 走 · <b>Enter</b> 挖/打/合体 · <b>右Shift</b> 放/吃<br><b>/</b> 交互 · <b>N</b> 合成 · <b>L</b> 任务本 · <b>T Y U I O P X J K</b> 选物品<br><b>V</b> 跟随保护 · <b>，</b> 放出小精灵 · <b>M</b> 丢弃手上的');
+      : '<b>方向键</b> 走 · <b>Enter</b> 挖/打/合体 · <b>右Shift</b> 放/吃<br><b>/</b> 交互 · <b>N</b> 合成 · <b>L</b> 任务本 · <b>T Y U I O P X J K</b> 选物品<br><b>V</b> 跟随保护 · <b>，</b> 放出小野灵 · <b>M</b> 丢弃手上的');
     var e1 = document.getElementById('hint1'), e2 = document.getElementById('hint2'), eh = document.getElementById('hint');
     if (e1) e1.innerHTML = h1;
     if (e2) e2.innerHTML = h2;
@@ -208,8 +233,8 @@ var Game = {
         '<span class="brief">ℹ️ 玩法提示 · 点一下展开</span>' +
         '<div class="full">' +
         '<b>🌀 传送门</b>：地图上蓝色的祭坛（益智神殿）和城堡里的红门（竞技场），站上去按交互键就能进<br>' +
-        '<b>收服球 🔴</b>：按放置键扔向小精灵 / 豌豆射手，血越少越好抓 · 收服后按 <b>B / ，</b> 放出来当帮手<br>' +
-        '<b>合体</b>：两人走重叠后按挖掘键变强 · <b>🤖 机器人</b>：拿到后按放置键召唤 · <b>🌟 龙珠</b>：集齐 7 颗按交互键许愿<br>' +
+        '<b>驯灵环 🔴</b>：按放置键扔向小野灵 / 豆荚炮手，血越少越好抓 · 收服后按 <b>B / ，</b> 放出来当帮手<br>' +
+        '<b>合体</b>：两人走重叠后按挖掘键变强 · <b>🤖 机器人</b>：拿到后按放置键召唤 · <b>🌟 星曜石</b>：集齐 7 颗按交互键许愿<br>' +
         '<b>附魔土豆 🌈</b>：按放置键扔给僵尸，吃了就倒戈进你的小队 · 拿枪/飞刀会自动开火 · 同一把武器多捡几把会<b>升级</b>' +
         '</div>';
       /* 点一下展开 / 收起，不挡视野 */
@@ -302,7 +327,7 @@ var Game = {
     }
   },
 
-  /* ---------- 收服球 ---------- */
+  /* ---------- 驯灵环 ---------- */
   throwBall: function (p) {
     if (Maze.active) { this.say('迷宫里抓不了东西'); return false; }
     if (typeof Realm !== 'undefined' && Realm.active) { this.say('异空间里抓不了东西'); return false; }
@@ -351,7 +376,7 @@ var Game = {
     } else {
       m.hp = Math.max(1, m.hp - 2);
       m.flash = 0.25;
-      this.say('💢 ' + m.label + ' 挣脱了收服球！（还剩 ' + Math.round(frac * 100) + '% 血，打得更残才好抓）');
+      this.say('💢 ' + m.label + ' 挣脱了驯灵环！（还剩 ' + Math.round(frac * 100) + '% 血，打得更残才好抓）');
     }
   },
 
@@ -365,9 +390,9 @@ var Game = {
       var pick = loot[Math.floor(Math.random() * loot.length)];
       Inv.add(player.inv, pick[0], pick[1]);
       this.setObj(tx, ty, O.NONE);
-      var dBall = Math.random() < 0.34;                 // 宝箱是龙珠的主要来源
+      var dBall = Math.random() < 0.34;                 // 宝箱是星曜石的主要来源
       if (dBall) this.grantDragonBall(player);
-      this.say('宝箱！' + player.name + ' 拿到 ' + ITEMS[pick[0]].name + ' ×' + pick[1] + (dBall ? ' 和一颗龙珠 🌟' : ''));
+      this.say('宝箱！' + player.name + ' 拿到 ' + ITEMS[pick[0]].name + ' ×' + pick[1] + (dBall ? ' 和一颗星曜石 🌟' : ''));
       return;
     }
     this.setObj(tx, ty, O.NONE);
@@ -455,7 +480,7 @@ var Game = {
     this.refreshStart();
   },
 
-  /* ---------- 拳皇式选人 ---------- */
+  /* ---------- 街机式选人 ---------- */
   select: null,          // { active, turn, cur:[i,i], picked:[角色id, 角色id], repT }
 
   /* 换角色：属性跟着换，血量体力做钳制（血只多不少截到上限） */
@@ -472,7 +497,7 @@ var Game = {
     return true;
   },
 
-  /* 建选人卡片（init 里调一次；无头测试里没有真 canvas，画头像失败就跳过） */
+  /* 建选人卡片（init 里调一次；优先用 AI 生成头像 img/char-*.png，无图时用 canvas 兜底） */
   buildCharCards: function () {
     var grid = document.getElementById('cs-grid');
     if (!grid || grid.children.length) return;
@@ -481,24 +506,33 @@ var Game = {
       (function (i, ch) {
         var card = document.createElement('div');
         card.className = 'charcard';
-        var cv = document.createElement('canvas');
-        cv.width = 84; cv.height = 84;
-        card.appendChild(cv);
+        if (ch.avatar) {
+          var im = document.createElement('img');
+          im.className = 'cc-avatar';
+          im.src = ch.avatar;
+          im.alt = ch.name;
+          im.draggable = false;
+          card.appendChild(im);
+        } else {
+          var cv = document.createElement('canvas');
+          cv.width = 84; cv.height = 84;
+          card.appendChild(cv);
+          if (cv.getContext) {
+            try { drawCharPortrait(cv.getContext('2d'), ch, 84, 84, 0); } catch (e) { }
+          }
+        }
         var nm = document.createElement('div');
         nm.className = 'cc-name';
         nm.textContent = ch.icon + ' ' + ch.name;
         card.appendChild(nm);
         var sc = document.createElement('div');
         sc.className = 'cc-src';
-        sc.textContent = ch.src + ' · ' + ch.tag;
+        sc.textContent = ch.tag;
         card.appendChild(sc);
         var badge = document.createElement('span');
         badge.className = 'cc-badge';
         card.appendChild(badge);
         grid.appendChild(card);
-        if (cv.getContext) {
-          try { drawCharPortrait(cv.getContext('2d'), ch, 84, 84, 0); } catch (e) { }
-        }
         card.addEventListener('click', function () {
           if (!self.select || !self.select.active) return;
           self.select.cur[self.select.turn] = i;
@@ -743,7 +777,7 @@ var Game = {
 
     // 任务弹窗（暂停世界，先看完说明再决定接不接）
     if (this.questOffer) { this.updateQuestOffer(); this.updateMessages(dt); return; }
-    // 神龙许愿（暂停世界）
+    // 星龙许愿（暂停世界）
     if (this.dragonWish) { this.updateDragonWish(); this.updateMessages(dt); return; }
     // 通关抽奖（暂停世界）
     if (this.lottery) { this.updateLottery(dt); this.updateMessages(dt); return; }
@@ -802,7 +836,7 @@ var Game = {
       if (this.gcTick <= 0) { this.gcTick = 3; World.gc(this.players, this.layer); }
     }
 
-    /* 地上的龙珠画几颗星？按“最近玩家还缺哪颗”来定（0.5 秒算一次，别每帧扫背包） */
+    /* 地上的星曜石画几颗星？按“最近玩家还缺哪颗”来定（0.5 秒算一次，别每帧扫背包） */
     this._ballTick = (this._ballTick || 0) - dt;
     if (this._ballTick <= 0) {
       this._ballTick = 0.5;
@@ -960,25 +994,25 @@ var Game = {
     return true;
   },
 
-  /* ---------- 七龙珠 ---------- */
-  /* 捡到/开箱时给一颗“还缺的”龙珠（已经有的就不再给重复的） */
+  /* ---------- 七星曜石 ---------- */
+  /* 捡到/开箱时给一颗“还缺的”星曜石（已经有的就不再给重复的） */
   grantDragonBall: function (p) {
     var miss = missingBalls(p);
-    if (!miss.length) { this.say(p.name + ' 已经有全套龙珠了'); return false; }
+    if (!miss.length) { this.say(p.name + ' 已经有全套星曜石了'); return false; }
     var n = miss[Math.floor(Math.random() * miss.length)];
     Inv.add(p.inv, 'db' + n, 1);
     var left = missingBalls(p).length;
-    if (left === 0) this.say('🌟 ' + p.name + ' 集齐了七颗龙珠！按使用键（' + (p.ctl.use === 'KeyF' ? 'F' : '/') + '）召唤神龙许愿！');
+    if (left === 0) this.say('🌟 ' + p.name + ' 集齐了七颗星曜石！按使用键（' + (p.ctl.use === 'KeyF' ? 'F' : '/') + '）召唤星龙许愿！');
     else this.say('🌟 ' + p.name + ' 找到 ' + ITEMS['db' + n].name + '（还差 ' + left + ' 颗）');
     return true;
   },
 
-  dragonWish: null,             // 神龙许愿面板
+  dragonWish: null,             // 星龙许愿面板
   summonDragon: function (p) {
     if (this.dragonWish) return;
     if (!hasAllBalls(p)) return;
     this.dragonWish = { p: p, sel: 0 };
-    this.say('🐉 神龙出现了！' + p.name + '，许一个愿吧（1-5 或鼠标点）');
+    this.say('🐉 星龙出现了！' + p.name + '，许一个愿吧（1-5 或鼠标点）');
   },
 
   WISHES: [
@@ -1029,7 +1063,7 @@ var Game = {
     for (var i = 0; i < this.WISHES.length && i < 9; i++) {
       if (Input.pressed('Digit' + (i + 1))) { this.doWish(i); return; }
     }
-    if (Input.pressed('Escape')) { this.dragonWish = null; this.say('神龙先回去了（龙珠还在你身上）'); }
+    if (Input.pressed('Escape')) { this.dragonWish = null; this.say('星龙先回去了（星曜石还在你身上）'); }
   },
 
   doWish: function (i) {
@@ -1039,7 +1073,7 @@ var Game = {
     consumeBalls(p);
     this.WISHES[i].run(p);
     this.dragonWish = null;
-    this.say('🐉 神龙实现了「' + this.WISHES[i].name + '」，龙珠散落回世界各地…');
+    this.say('🐉 星龙实现了「' + this.WISHES[i].name + '」，星曜石散落回世界各地…');
     for (var k = 0; k < 3; k++) this.pops.push({ x: p.x, y: p.y, t: 0 });
   },
 
@@ -1053,7 +1087,7 @@ var Game = {
     rrect(ctx, x, y, W2, H2, 20); ctx.fill();
     ctx.strokeStyle = '#F59E0B'; ctx.lineWidth = 3;
     rrect(ctx, x, y, W2, H2, 20); ctx.stroke();
-    /* 顶上一条神龙（简笔画） */
+    /* 顶上一条星龙（简笔画） */
     ctx.save();
     ctx.translate(x + W2 / 2, y + 54);
     var sway = Math.sin(this.time * 2) * 6;
@@ -1075,9 +1109,9 @@ var Game = {
     ctx.restore();
     ctx.fillStyle = '#FBBF24';
     ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('🐉 神龙：说出你的愿望', x + W2 / 2, y + 108);
+    ctx.fillText('🐉 星龙：说出你的愿望', x + W2 / 2, y + 108);
     ctx.font = '13px sans-serif'; ctx.fillStyle = '#8CA9C8';
-    ctx.fillText(p.name + ' 集齐了七颗龙珠 · 按 1-5 或点击选择（Esc 先不要）', x + W2 / 2, y + 130);
+    ctx.fillText(p.name + ' 集齐了七颗星曜石 · 按 1-5 或点击选择（Esc 先不要）', x + W2 / 2, y + 130);
     ctx.textAlign = 'left';
     for (var i = 0; i < this.WISHES.length; i++) {
       var wy = y + 150 + i * 48;
@@ -1111,11 +1145,11 @@ var Game = {
     var wpool = (kind === 'arena') ? ['dagger', 'pistol', 'ssword', 'mgun', 'tank'] : ['dagger', 'pistol', 'ssword', 'waxe', 'spick'];
     var wid = wpool[Math.floor(Math.random() * wpool.length)];
     var cells = [
-      { icon: 'dball',  label: '龙珠 ×1',   w: 12, run: function () { if (!Game.grantDragonBall(p)) Inv.give(p, 'gold', 8); } },
+      { icon: 'dball',  label: '星曜石 ×1',   w: 12, run: function () { if (!Game.grantDragonBall(p)) Inv.give(p, 'gold', 8); } },
       { icon: 'gold',   label: '金子 ×10',  w: 14, run: function () { Inv.give(p, 'gold', 10); } },
       { icon: 'kit',    label: '药箱 ×4',   w: 14, run: function () { Inv.give(p, 'kit', 4); } },
       { icon: 'iron',   label: '铁 ×8',     w: 14, run: function () { Inv.give(p, 'iron', 8); } },
-      { icon: 'cball',  label: '收服球 ×3', w: 12, run: function () { Inv.give(p, 'cball', 3); } },
+      { icon: 'cball',  label: '驯灵环 ×3', w: 12, run: function () { Inv.give(p, 'cball', 3); } },
       { icon: 'epotato',label: '附魔土豆 ×2',w: 10, run: function () { Inv.give(p, 'epotato', 2); } },
       { icon: wid,      label: '神秘装备',   w: 14, run: function () { Inv.give(p, wid, 1); } },
       { icon: 'robot',  label: '机器人 ×1',  w: 8,  run: function () { Inv.give(p, 'robot', 1); } }
@@ -1546,7 +1580,7 @@ var Game = {
 
   pointerDown: function (mx, my) {
     this.pointerMove(mx, my);
-    /* 神龙许愿：点选愿望 */
+    /* 星龙许愿：点选愿望 */
     if (this.dragonWish) {
       var wi = this.wishHit(mx, my);
       if (wi >= 0) this.doWish(wi);
@@ -1670,7 +1704,7 @@ var Game = {
         var p = this.players[j];
         if (!p.alive) continue;
         if (dist(p.x, p.y, pk.x * TILE + 16, pk.y * TILE + 16) > 26) continue;
-        if (pk.id === 'dball') {                 // 龙珠：自动补“还缺的那颗”
+        if (pk.id === 'dball') {                 // 星曜石：自动补“还缺的那颗”
           if (missingBalls(p).length === 0) break;
           World.takePickup(this.layer, pk.x, pk.y);
           this.grantDragonBall(p);
@@ -1709,7 +1743,7 @@ var Game = {
       }
       if (!m.alive || far) this.mobs.splice(i, 1);
     }
-    /* 白天也刷「可以收服的小家伙」：小精灵和植物不怕太阳 */
+    /* 白天也刷「可以收服的小家伙」：小野灵和植物不怕太阳 */
     this.critterTimer = (this.critterTimer || 5) - dt;
     if (this.critterTimer <= 0) {
       this.critterTimer = 8 + Math.random() * 9;
@@ -1777,7 +1811,7 @@ var Game = {
     this.mobs.push(new Mob(type, tx * TILE + 16, ty * TILE + 16));
   },
 
-  /* 白天在附近刷一只可以收服的小家伙（小精灵 / 豌豆射手 / 向日葵 / 坚果墙） */
+  /* 白天在附近刷一只可以收服的小家伙（小野灵 / 豆荚炮手 / 日光花 / 岩壳仔） */
   spawnCritter: function () {
     var p = this.players[Math.floor(Math.random() * this.players.length)];
     if (!p || !p.alive) return;
@@ -1902,7 +1936,7 @@ var Game = {
       ctx.moveTo(b.x, b.y); ctx.lineTo(b.x - b.vx * 0.02, b.y - b.vy * 0.02);
       ctx.stroke();
     }
-    /* 飞在空中的收服球（画成一颗红白的小球，边飞边转） */
+    /* 飞在空中的驯灵环（画成一颗红白的小球，边飞边转） */
     for (var bi2 = 0; bi2 < this.balls.length; bi2++) {
       var cb = this.balls[bi2];
       var spin = cb.t * 12;
@@ -2089,7 +2123,7 @@ var Game = {
   drawPickup: function (pk) {
     var x = pk.x * TILE + 16, y = pk.y * TILE + 16;
     var bob = Math.sin(this.time * 3 + pk.x + pk.y) * 3;
-    /* 地上的龙珠：画成一个会转的金色球（星号按“最近玩家还缺哪颗”来画） */
+    /* 地上的星曜石：画成一个会转的金色球（星号按“最近玩家还缺哪颗”来画） */
     if (pk.id === 'dball') {
       var star = this.missBall || 1;
       var pulse = 0.5 + 0.5 * Math.sin(this.time * 3);
@@ -2100,7 +2134,7 @@ var Game = {
       drawItemIcon(ctx, 'db' + star, x - 12, y - 12 + bob, 24);
       ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
       ctx.fillStyle = '#FDE68A';
-      ctx.fillText('龙珠', x, y - 18 + bob);
+      ctx.fillText('星曜石', x, y - 18 + bob);
       ctx.textAlign = 'left';
       return;
     }
@@ -2219,14 +2253,14 @@ var Game = {
       if (typeof missingBalls === 'function') {
         var got = 7 - missingBalls(p).length;
         if (got > 0) {
-          h += '<div class="veh" style="color:#FBBF24">🌟 龙珠 ' + got + '/7' +
-            (got === 7 ? ' · 按' + (p.id === 0 ? ' F ' : ' / ') + '召唤神龙！' : '') + '</div>';
+          h += '<div class="veh" style="color:#FBBF24">🌟 星曜石 ' + got + '/7' +
+            (got === 7 ? ' · 按' + (p.id === 0 ? ' F ' : ' / ') + '召唤星龙！' : '') + '</div>';
         }
       }
       if (p.pets && p.pets.length) {
         var out = 0;
         for (var pt = 0; pt < p.pets.length; pt++) if (p.pets[pt].out) out++;
-        h += '<div class="veh" style="color:#C4B5FD">🐾 小精灵 ' + p.pets.length + ' 只（在外面 ' + out +
+        h += '<div class="veh" style="color:#C4B5FD">🐾 小野灵 ' + p.pets.length + ' 只（在外面 ' + out +
           '）· 按 ' + (p.id === 0 ? 'B' : '，') + ' 放出</div>';
       }
       var held = Inv.held(p);
